@@ -1,0 +1,359 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<prerequisites>
+		<maven>3.2</maven>
+	</prerequisites>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<commons.version>0.4.0-SNAPSHOT</commons.version>
+		<cassandra.driver.version>2.1.2</cassandra.driver.version>
+	</properties>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<groupId>com.puresoltechnologies.trans4mator</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>${project.groupId}.${project.artifactId}</name>
+	<description>PureSol Technologies' universal migration framework</description>
+	<inceptionYear>2014</inceptionYear>
+	<url>http://opensource.puresol-technologies.com/trans4mator</url>
+
+	<organization>
+		<name>PureSol Technologies</name>
+		<url>http://puresol-technologies.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<developerConnection>scm:git:https://github.com/PureSolTechnologies/trans4mator</developerConnection>
+		<connection>scm:git:https://github.com/PureSolTechnologies/trans4mator</connection>
+		<url>https://github.com/PureSolTechnologies/trans4mator.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<developers>
+		<developer>
+			<name>Rick-Rainer Ludwig</name>
+			<email>ludwig@puresol-technologies.com</email>
+			<organization>PureSol Technologies</organization>
+			<organizationUrl>http://puresol-technologies.com</organizationUrl>
+			<url>http://rick-rainer-ludwig.com</url>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>Redmine</system>
+		<url>https://bugs.puresol-technologies.net/projects/trans4mator</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>https://travis-ci.org/RickRainerLudwig/trans4mator</url>
+	</ciManagement>
+
+	<distributionManagement>
+		<site>
+			<id>FTPPureSolTechnologiesCom</id>
+			<name>FTPPureSolTechnologiesCom</name>
+			<url>ftp://puresol-technologies.com/opensource.puresol-technologies.com/projects/trans4mator</url>
+		</site>
+	</distributionManagement>
+
+	<repositories />
+	<pluginRepositories />
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<artifactId>commons</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<artifactId>commons.cassandra</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<artifactId>logger.api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<artifactId>logger.spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<artifactId>tracker.spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<artifactId>trans4mation.spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- External PureSol Technologies libraries -->
+			<dependency>
+				<groupId>com.puresoltechnologies.commons</groupId>
+				<artifactId>misc</artifactId>
+				<version>${commons.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.commons</groupId>
+				<artifactId>versioning</artifactId>
+				<version>${commons.version}</version>
+			</dependency>
+			<!-- External Libraries -->
+			<dependency>
+				<groupId>com.datastax.cassandra</groupId>
+				<artifactId>cassandra-driver-core</artifactId>
+				<version>${cassandra.driver.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.7</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.puresoltechnologies.maven.plugins</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>1.2.0</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>validate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<recursive>true</recursive>
+					<skipOptionals>true</skipOptionals>
+					<skipProvidedScope>true</skipProvidedScope>
+					<skipTestScope>true</skipTestScope>
+					<knownLicenses>
+						<knownLicense>
+							<name>Apache License, Version 2.0</name>
+							<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+							<aliases>
+								<alias>The Apache Software License, Version 2.0</alias>
+								<alias>Apache 2</alias>
+								<alias>Apache License 2.0</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>The MIT License (MIT)</name>
+							<url>http://opensource.org/licenses/MIT</url>
+							<aliases>
+								<alias>MIT License</alias>
+							</aliases>
+						</knownLicense>
+					</knownLicenses>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifestEntries>
+									<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+									<Bundle-Name>${project.name} (Source)</Bundle-Name>
+									<Bundle-SymbolicName>${bundle.name}.source</Bundle-SymbolicName>
+									<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+									<Bundle-Version>${parsedVersion.osgiVersion}</Bundle-Version>
+									<Eclipse-SourceBundle>
+										${bundle.name};version="${parsedVersion.osgiVersion}";roots:="."
+									</Eclipse-SourceBundle>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.5.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<manifestLocation>META-INF</manifestLocation>
+					<instructions>
+						<!-- The Bundle-SymbolicName is fixed in this way. Otherwise Tycho 
+							will not find the bundle. -->
+						<Bundle-SymbolicName>${bundle.namespace}.bundle</Bundle-SymbolicName>
+						<Bundle-Name>${bundle.namespace}.bundle</Bundle-Name>
+						<Bundle-Version>${project.version}</Bundle-Version>
+						<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+						<Export-Package>${bundle.namespace}.*;version="${project.version}"</Export-Package>
+						<Bundle-Activator>${bundle.namespace}.Activator</Bundle-Activator>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<!-- embed compile/runtime dependencies using path that matches the 
+							copied dependency folder -->
+						<Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+						<Embed-Directory>dependencies</Embed-Directory>
+						<Embed-StripGroup>true</Embed-StripGroup>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.4</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.18</version>
+			</plugin>
+		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+				<version>2.5</version>
+			</extension>
+		</extensions>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											com.puresoltechnologies.maven.plugins
+										</groupId>
+										<artifactId>
+											license-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.2.0,)
+										</versionRange>
+										<goals>
+											<goal>validate</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.puresoltechnologies.maven.plugins</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<modules>
+		<module>commons</module>
+		<module>commons.cassandra</module>
+		<module>tracker</module>
+		<module>logger</module>
+		<module>trans4mation</module>
+		<module>controller</module>
+	</modules>
+
+</project>

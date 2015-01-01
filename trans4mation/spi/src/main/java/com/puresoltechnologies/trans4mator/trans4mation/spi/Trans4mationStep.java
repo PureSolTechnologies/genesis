@@ -1,4 +1,7 @@
-package com.puresoltechnologies.trans4mator.commons;
+package com.puresoltechnologies.trans4mator.trans4mation.spi;
+
+import com.puresoltechnologies.trans4mator.commons.Trans4mationException;
+import com.puresoltechnologies.trans4mator.commons.Trans4mationMetadata;
 
 /**
  * This interface is used for an implementation of a single migration step.

@@ -2,8 +2,8 @@ package com.puresoltechnologies.trans4mator.trans4mation.cassandra;
 
 import com.datastax.driver.core.Session;
 import com.puresoltechnologies.commons.versioning.Version;
-import com.puresoltechnologies.trans4mator.commons.Trans4mationStep;
 import com.puresoltechnologies.trans4mator.commons.cassandra.ReplicationStrategy;
+import com.puresoltechnologies.trans4mator.trans4mation.spi.Trans4mationStep;
 
 public class CassandraMigration {
 

@@ -5,11 +5,11 @@ import java.util.ServiceLoader;
 
 import com.puresoltechnologies.trans4mator.commons.Trans4mationException;
 import com.puresoltechnologies.trans4mator.commons.Trans4mationMetadata;
-import com.puresoltechnologies.trans4mator.commons.Trans4mationStep;
 import com.puresoltechnologies.trans4mator.logger.api.Trans4mationLogger;
 import com.puresoltechnologies.trans4mator.logger.api.Trans4mationLogs;
 import com.puresoltechnologies.trans4mator.tracker.spi.Trans4mationTracker;
 import com.puresoltechnologies.trans4mator.trans4mation.spi.Trans4mationSequence;
+import com.puresoltechnologies.trans4mator.trans4mation.spi.Trans4mationStep;
 
 /**
  * This is the central class to start environmental transformations and

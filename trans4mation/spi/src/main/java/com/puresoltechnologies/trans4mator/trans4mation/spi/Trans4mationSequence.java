@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.commons.versioning.VersionRange;
-import com.puresoltechnologies.trans4mator.commons.Trans4mationStep;
 
 /**
  * This interface is used to implement a single transformation sequence.

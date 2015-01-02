@@ -9,7 +9,7 @@ import java.util.Set;
  * @author Rick-Rainer Ludwig
  *
  */
-public interface TargetTransformator {
+public interface Transformator {
 
 	/**
 	 * This method returns the name of the transformation target. This target

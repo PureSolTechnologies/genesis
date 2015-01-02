@@ -18,7 +18,7 @@
 		<version>7</version>
 	</parent>
 
-	<groupId>com.puresoltechnologies.trans4mator</groupId>
+	<groupId>com.puresoltechnologies.genesis</groupId>
 	<artifactId>parent</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -26,7 +26,7 @@
 	<name>${project.groupId}.${project.artifactId}</name>
 	<description>PureSol Technologies' universal migration framework</description>
 	<inceptionYear>2014</inceptionYear>
-	<url>http://opensource.puresol-technologies.com/trans4mator</url>
+	<url>http://opensource.puresol-technologies.com/genesis</url>
 
 	<organization>
 		<name>PureSol Technologies</name>
@@ -42,9 +42,9 @@
 	</licenses>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/PureSolTechnologies/trans4mator</developerConnection>
-		<connection>scm:git:https://github.com/PureSolTechnologies/trans4mator</connection>
-		<url>https://github.com/PureSolTechnologies/trans4mator.git</url>
+		<developerConnection>scm:git:https://github.com/PureSolTechnologies/genesis</developerConnection>
+		<connection>scm:git:https://github.com/PureSolTechnologies/genesis</connection>
+		<url>https://github.com/PureSolTechnologies/genesis.git</url>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -60,19 +60,19 @@
 
 	<issueManagement>
 		<system>Redmine</system>
-		<url>https://bugs.puresol-technologies.net/projects/trans4mator</url>
+		<url>https://bugs.puresol-technologies.net/projects/genesis</url>
 	</issueManagement>
 
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>https://travis-ci.org/RickRainerLudwig/trans4mator</url>
+		<url>https://travis-ci.org/RickRainerLudwig/genesis</url>
 	</ciManagement>
 
 	<distributionManagement>
 		<site>
 			<id>FTPPureSolTechnologiesCom</id>
 			<name>FTPPureSolTechnologiesCom</name>
-			<url>ftp://puresol-technologies.com/opensource.puresol-technologies.com/projects/trans4mator</url>
+			<url>ftp://puresol-technologies.com/opensource.puresol-technologies.com/projects/genesis</url>
 		</site>
 	</distributionManagement>
 
@@ -82,38 +82,28 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>commons</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>commons.cassandra</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
-				<artifactId>logger.api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
-				<artifactId>logger.spi</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
+				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>tracker.spi</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
-				<artifactId>trans4mation.cassandra</artifactId>
+				<groupId>com.puresoltechnologies.genesis</groupId>
+				<artifactId>transformation.cassandra</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.puresoltechnologies.trans4mator</groupId>
-				<artifactId>trans4mation.spi</artifactId>
+				<groupId>com.puresoltechnologies.genesis</groupId>
+				<artifactId>transformation.spi</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<!-- External PureSol Technologies libraries -->
@@ -367,8 +357,7 @@
 		<module>commons</module>
 		<module>commons.cassandra</module>
 		<module>tracker</module>
-		<module>logger</module>
-		<module>trans4mation</module>
+		<module>transformation</module>
 		<module>controller</module>
 	</modules>
 

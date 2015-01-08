@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
-		<version>7</version>
+		<version>9</version>
 	</parent>
 
 	<groupId>com.puresoltechnologies.genesis</groupId>
@@ -23,7 +23,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>${project.groupId}.${project.artifactId}</name>
+	<name>Genesis - ${project.artifactId}</name>
 	<description>PureSol Technologies' universal migration framework</description>
 	<inceptionYear>2014</inceptionYear>
 	<url>http://opensource.puresol-technologies.com/genesis</url>
@@ -78,6 +78,56 @@
 
 	<repositories />
 	<pluginRepositories />
+
+	<profiles>
+		<profile>
+			<id>it</id>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>cassandra-maven-plugin</artifactId>
+							<version>2.0.0-1</version>
+							<executions>
+								<execution>
+									<id>cassandra-start</id>
+									<phase>pre-integration-test</phase>
+									<goals>
+										<goal>start</goal>
+									</goals>
+								</execution>
+								<execution>
+									<id>cassandra-stop</id>
+									<phase>post-integration-test</phase>
+									<goals>
+										<goal>stop</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<forkMode>always</forkMode>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
@@ -285,7 +335,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.1</version>
+				<version>2.9</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -342,6 +392,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

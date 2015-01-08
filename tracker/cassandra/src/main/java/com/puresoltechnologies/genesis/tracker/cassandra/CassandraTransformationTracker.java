@@ -14,8 +14,8 @@ import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
-import com.puresoltechnologies.commons.misc.HashId;
-import com.puresoltechnologies.commons.misc.HashUtilities;
+import com.puresoltechnologies.commons.misc.hash.HashId;
+import com.puresoltechnologies.commons.misc.hash.HashUtilities;
 import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.cassandra.CassandraUtils;
@@ -126,8 +126,8 @@ public class CassandraTransformationTracker implements TransformationTracker {
 		    hashId.toString(), comment);
 	    session.execute(boundStatement);
 	} catch (IOException e) {
-	    throw new TransformationException("Could not track migration step.",
-		    e);
+	    throw new TransformationException(
+		    "Could not track migration step.", e);
 	}
     }
 

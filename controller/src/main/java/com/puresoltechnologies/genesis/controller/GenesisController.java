@@ -17,7 +17,7 @@ import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.tracker.spi.Severity;
 import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
-import com.puresoltechnologies.genesis.transformation.spi.Transformator;
+import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
 
@@ -90,7 +90,7 @@ public class GenesisController implements AutoCloseable {
      *             is thrown in case of transformation issues.
      */
     public void transform(Version targetVersion) throws TransformationException {
-	for (Transformator transformator : Transformators.getAll()) {
+	for (ComponentTransformator transformator : Transformators.getAll()) {
 	    List<TransformationSequence> sequences = calculateNeededSequences(
 		    transformator, targetVersion);
 	    runTransformations(sequences);
@@ -98,7 +98,7 @@ public class GenesisController implements AutoCloseable {
     }
 
     public void transform() throws TransformationException {
-	for (Transformator transformator : Transformators.getAll()) {
+	for (ComponentTransformator transformator : Transformators.getAll()) {
 	    Version targetVersion = calculateMaximumVersion(transformator);
 	    List<TransformationSequence> sequences = calculateNeededSequences(
 		    transformator, targetVersion);
@@ -106,7 +106,7 @@ public class GenesisController implements AutoCloseable {
 	}
     }
 
-    private Version calculateMaximumVersion(Transformator transformator) {
+    private Version calculateMaximumVersion(ComponentTransformator transformator) {
 	// FIXME
 	return null;
     }
@@ -135,7 +135,7 @@ public class GenesisController implements AutoCloseable {
     }
 
     private List<TransformationSequence> calculateNeededSequences(
-	    Transformator transformator, Version version) {
+	    ComponentTransformator transformator, Version version) {
 	Set<TransformationSequence> sequences = transformator.getSequences();
 	// FIXME
 	return new ArrayList<>(sequences);

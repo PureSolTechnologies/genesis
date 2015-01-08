@@ -8,16 +8,17 @@ import java.util.Set;
 import java.util.Vector;
 
 import com.puresoltechnologies.commons.statemodel.AbstractStateModel;
+import com.puresoltechnologies.commons.statemodel.StateModelVerfier;
 import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.commons.versioning.VersionMath;
 import com.puresoltechnologies.commons.versioning.VersionRange;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
+import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
-import com.puresoltechnologies.genesis.transformation.spi.Transformator;
 
 /**
  * This class represents a complete migration model for a certain
- * {@link Transformator}.
+ * {@link ComponentTransformator}.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -26,18 +27,25 @@ public class MigrationModel extends
 
     /**
      * Use this method to create a new {@link MigrationModel} from a
-     * {@link Transformator}.
+     * {@link ComponentTransformator}.
      * 
      * @param transformator
-     *            is the {@link Transformator} for which the migration model is
-     *            to be created.
+     *            is the {@link ComponentTransformator} for which the migration
+     *            model is to be created.
      * @return A {@link MigrationModel} is returned containing all sequences as
      *         model.
      * @throws InvalidSequenceException
+     *             is thrown in case the transformator provides and
+     *             transformation sequences, which are invalid.
      */
-    public static MigrationModel create(Transformator transformator)
+    public static MigrationModel create(ComponentTransformator transformator)
 	    throws InvalidSequenceException {
-	return new MigrationModel(transformator);
+	MigrationModel model = new MigrationModel(transformator);
+	if (StateModelVerfier.hasDeadEnds(model)) {
+	    throw new InvalidSequenceException(
+		    "There are dead ends in the model which do not allow to migrate to latest version.");
+	}
+	return model;
     }
 
     private static final Version VERSION_0_0_0 = new Version(0, 0, 0);
@@ -50,9 +58,9 @@ public class MigrationModel extends
     private final Map<Version, MigrationState> states = new HashMap<>();
     private final Set<MigrationState> endStates = new HashSet<>();
 
-    private final Transformator transformator;
+    private final ComponentTransformator transformator;
 
-    private MigrationModel(Transformator transformator)
+    private MigrationModel(ComponentTransformator transformator)
 	    throws InvalidSequenceException {
 	this.transformator = transformator;
 	states.put(VERSION_0_0_0, START_STATE);

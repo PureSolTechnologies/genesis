@@ -7,7 +7,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
-import com.puresoltechnologies.genesis.transformation.spi.Transformator;
+import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 
 /**
  * This is a central service for all Trans4mation sequences.
@@ -17,14 +17,14 @@ import com.puresoltechnologies.genesis.transformation.spi.Transformator;
  */
 class Transformators {
 
-    private static final Map<Class<? extends Transformator>, Transformator> sequences = new HashMap<>();
+    private static final Map<Class<? extends ComponentTransformator>, ComponentTransformator> sequences = new HashMap<>();
 
     public static void loadAll() {
-	ServiceLoader<Transformator> loader = ServiceLoader
-		.load(Transformator.class);
+	ServiceLoader<ComponentTransformator> loader = ServiceLoader
+		.load(ComponentTransformator.class);
 	synchronized (sequences) {
-	    for (Transformator loadedSequence : loader) {
-		Class<? extends Transformator> loadedLogClass = loadedSequence
+	    for (ComponentTransformator loadedSequence : loader) {
+		Class<? extends ComponentTransformator> loadedLogClass = loadedSequence
 			.getClass();
 		if (!sequences.keySet().contains(loadedLogClass)) {
 		    sequences.put(loadedLogClass, loadedSequence);
@@ -39,19 +39,19 @@ class Transformators {
 	}
     }
 
-    public static Set<Transformator> getAll() {
+    public static Set<ComponentTransformator> getAll() {
 	synchronized (sequences) {
 	    return new HashSet<>(sequences.values());
 	}
     }
 
     public static void verifySequences(TransformationTracker tracker) {
-	for (Transformator transformator : getAll()) {
+	for (ComponentTransformator transformator : getAll()) {
 	    verifyTransformator(transformator);
 	}
     }
 
-    private static void verifyTransformator(Transformator transformator) {
+    private static void verifyTransformator(ComponentTransformator transformator) {
 	// TODO
     }
 }

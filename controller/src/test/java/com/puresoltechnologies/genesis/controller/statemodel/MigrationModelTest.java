@@ -14,7 +14,7 @@ import com.puresoltechnologies.commons.versioning.VersionRange;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
-import com.puresoltechnologies.genesis.transformation.spi.Transformator;
+import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 
 public class MigrationModelTest {
 
@@ -84,7 +84,7 @@ public class MigrationModelTest {
 		0), null));
 	sequences.add(new TestSequence(new Version(0, 0, 0), new Version(1, 0,
 		0), null));
-	Transformator transformator = Mockito.mock(Transformator.class);
+	ComponentTransformator transformator = Mockito.mock(ComponentTransformator.class);
 	Mockito.when(transformator.getSequences()).thenReturn(sequences);
 	MigrationModel model = MigrationModel.create(transformator);
 	assertNotNull(model);

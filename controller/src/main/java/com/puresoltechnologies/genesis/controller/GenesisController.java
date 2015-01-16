@@ -12,7 +12,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.tracker.spi.Severity;
@@ -20,14 +19,15 @@ import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
+import com.puresoltechnologies.versioning.Version;
 
 /**
  * This is the central class to start environmental transformations and
  * migrations.
  * 
  * <b>Attention:</b> Due to its nature of a migrator to change states, this
- * {@link GenesisController} is <b>not</b> thread-safe and even worse: There should
- * be no multiple instance running at the same time due to global state!
+ * {@link GenesisController} is <b>not</b> thread-safe and even worse: There
+ * should be no multiple instance running at the same time due to global state!
  * 
  * @author Rick-Rainer Ludwig
  */

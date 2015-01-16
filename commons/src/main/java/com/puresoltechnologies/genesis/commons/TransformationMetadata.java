@@ -1,6 +1,6 @@
 package com.puresoltechnologies.genesis.commons;
 
-import com.puresoltechnologies.commons.versioning.Version;
+import com.puresoltechnologies.versioning.Version;
 
 /**
  * This value class is used to transport meta information about a trans4mation.

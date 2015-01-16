@@ -3,17 +3,24 @@ package com.puresoltechnologies.genesis.controller.statemodel;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.puresoltechnologies.commons.statemodel.State;
-import com.puresoltechnologies.commons.versioning.Version;
+import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
+import com.puresoltechnologies.statemodel.State;
+import com.puresoltechnologies.versioning.Version;
 
 public class MigrationState implements State<MigrationState, Migration> {
 
     private final Version version;
     private final Set<Migration> migrations = new HashSet<>();
+    private final Set<Migration> edges = new HashSet<>();
 
     public MigrationState(Version version) {
 	super();
 	this.version = version;
+    }
+
+    @Override
+    public Set<Migration> getEdges() {
+	return edges;
     }
 
     @Override
@@ -30,12 +37,24 @@ public class MigrationState implements State<MigrationState, Migration> {
 	return version;
     }
 
-    void addMigration(Migration migration) {
+    private void addEdge(Migration migration) {
+	if (!edges.add(migration)) {
+	    throw new IllegalStateException("Edge '" + migration.toString()
+		    + "' was already included. "
+		    + "Duplicates are forbidden to avoid ambiguities.");
+	}
+    }
+
+    public void addMigration(MigrationState targetState,
+	    TransformationSequence sequence) {
+	Migration migration = new Migration(this, targetState, sequence);
 	if (!migrations.add(migration)) {
 	    throw new IllegalStateException("Migration '"
 		    + migration.toString() + "' was already included. "
 		    + "Duplicates are forbidden to avoid ambiguities.");
 	}
+	targetState.addEdge(migration);
+	addEdge(migration);
     }
 
     @Override

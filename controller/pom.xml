@@ -21,7 +21,7 @@
 			<artifactId>transformation.spi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.commons</groupId>
+			<groupId>com.puresoltechnologies.graphs</groupId>
 			<artifactId>statemodel</artifactId>
 		</dependency>
 		<dependency>

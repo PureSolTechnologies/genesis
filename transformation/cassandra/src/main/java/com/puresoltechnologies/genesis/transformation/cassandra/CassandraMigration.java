@@ -1,9 +1,9 @@
 package com.puresoltechnologies.genesis.transformation.cassandra;
 
 import com.datastax.driver.core.Session;
-import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.genesis.commons.cassandra.ReplicationStrategy;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
+import com.puresoltechnologies.versioning.Version;
 
 public class CassandraMigration {
 

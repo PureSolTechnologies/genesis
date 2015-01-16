@@ -17,7 +17,7 @@
 			<artifactId>commons</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.commons</groupId>
+			<groupId>com.puresoltechnologies.versioning</groupId>
 			<artifactId>versioning</artifactId>
 		</dependency>
 		<dependency>

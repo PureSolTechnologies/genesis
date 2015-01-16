@@ -3,8 +3,8 @@ package com.puresoltechnologies.genesis.tracker.spi;
 import java.net.InetAddress;
 import java.util.Date;
 
-import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.genesis.commons.TransformationException;
+import com.puresoltechnologies.versioning.Version;
 
 /**
  * This interface is used to implement the migration tracker which is used by

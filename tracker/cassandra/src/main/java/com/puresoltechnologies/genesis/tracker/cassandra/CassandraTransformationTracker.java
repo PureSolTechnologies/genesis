@@ -16,11 +16,11 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
-import com.puresoltechnologies.commons.versioning.Version;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.cassandra.CassandraUtils;
 import com.puresoltechnologies.genesis.commons.cassandra.ReplicationStrategy;
 import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
+import com.puresoltechnologies.versioning.Version;
 
 /**
  * This is the default migration tracker for Purifinity which puts everything

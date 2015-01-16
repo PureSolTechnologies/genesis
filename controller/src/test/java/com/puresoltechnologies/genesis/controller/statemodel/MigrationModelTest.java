@@ -9,12 +9,12 @@ import java.util.Set;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.puresoltechnologies.commons.versioning.Version;
-import com.puresoltechnologies.commons.versioning.VersionRange;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
+import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
-import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
+import com.puresoltechnologies.versioning.Version;
+import com.puresoltechnologies.versioning.VersionRange;
 
 public class MigrationModelTest {
 
@@ -84,7 +84,8 @@ public class MigrationModelTest {
 		0), null));
 	sequences.add(new TestSequence(new Version(0, 0, 0), new Version(1, 0,
 		0), null));
-	ComponentTransformator transformator = Mockito.mock(ComponentTransformator.class);
+	ComponentTransformator transformator = Mockito
+		.mock(ComponentTransformator.class);
 	Mockito.when(transformator.getSequences()).thenReturn(sequences);
 	MigrationModel model = MigrationModel.create(transformator);
 	assertNotNull(model);

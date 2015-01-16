@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.puresoltechnologies.commons.statemodel.AbstractStateModel;
-import com.puresoltechnologies.commons.statemodel.StateModelVerfier;
-import com.puresoltechnologies.commons.versioning.Version;
-import com.puresoltechnologies.commons.versioning.VersionMath;
-import com.puresoltechnologies.commons.versioning.VersionRange;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
+import com.puresoltechnologies.graph.GraphVerfier;
+import com.puresoltechnologies.statemodel.AbstractStateModel;
+import com.puresoltechnologies.versioning.Version;
+import com.puresoltechnologies.versioning.VersionMath;
+import com.puresoltechnologies.versioning.VersionRange;
 
 /**
  * This class represents a complete migration model for a certain
@@ -41,7 +41,8 @@ public class MigrationModel extends
     public static MigrationModel create(ComponentTransformator transformator)
 	    throws InvalidSequenceException {
 	MigrationModel model = new MigrationModel(transformator);
-	if (StateModelVerfier.hasDeadEnds(model)) {
+	if (GraphVerfier.hasDeadEnds(model, model.getStartState(),
+		model.getEndStates())) {
 	    throw new InvalidSequenceException(
 		    "There are dead ends in the model which do not allow to migrate to latest version.");
 	}
@@ -93,11 +94,14 @@ public class MigrationModel extends
 		targetState = new MigrationState(targetVersion);
 		states.put(targetVersion, targetState);
 	    }
-	    Migration migration = new Migration(startVersion, targetVersion,
-		    targetState, sequence);
-	    startState.addMigration(migration);
+	    startState.addMigration(targetState, sequence);
 	}
 	endStates.add(states.get(maxTargetVersion));
+    }
+
+    @Override
+    public Set<MigrationState> getVertices() {
+	return new HashSet<>(states.values());
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.Vector;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
-import com.puresoltechnologies.graph.GraphVerfier;
+import com.puresoltechnologies.graph.DeadEndAnalyzer;
 import com.puresoltechnologies.statemodel.AbstractStateModel;
 import com.puresoltechnologies.versioning.Version;
 import com.puresoltechnologies.versioning.VersionMath;
@@ -41,7 +41,7 @@ public class MigrationModel extends
     public static MigrationModel create(ComponentTransformator transformator)
 	    throws InvalidSequenceException {
 	MigrationModel model = new MigrationModel(transformator);
-	if (GraphVerfier.hasDeadEnds(model, model.getStartState(),
+	if (DeadEndAnalyzer.hasDeadEnds(model, model.getStartState(),
 		model.getEndStates())) {
 	    throw new InvalidSequenceException(
 		    "There are dead ends in the model which do not allow to migrate to latest version.");

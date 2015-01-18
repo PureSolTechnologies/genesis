@@ -9,6 +9,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<commons.version>0.4.0-SNAPSHOT</commons.version>
+		<versioning.version>1.0.0</versioning.version>
 		<graphs.version>0.4.0-SNAPSHOT</graphs.version>
 		<cassandra.driver.version>2.1.2</cassandra.driver.version>
 	</properties>
@@ -176,7 +177,7 @@
 			<dependency>
 				<groupId>com.puresoltechnologies.versioning</groupId>
 				<artifactId>versioning</artifactId>
-				<version>1.0.0</version>
+				<version>${versioning.version}</version>
 			</dependency>
 			<!-- External Libraries -->
 			<dependency>

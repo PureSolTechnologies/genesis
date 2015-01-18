@@ -21,6 +21,19 @@ public interface ComponentTransformator {
     public String getComponentName();
 
     /**
+     * This method provides information about whether this sequence is host
+     * based or not. Host based transformation are tracked per host and are
+     * meant to run on each host again (like altering local configurations or
+     * migrating local data). If a sequence is not host based, there is only one
+     * run from one of the transformers. This is needed for instance for
+     * database changes.
+     * 
+     * @return <code>true</code> is returned if the sequence needs to run on
+     *         each host individually. <code>false</code> is returned otherwise.
+     */
+    public boolean isHostBased();
+
+    /**
      * This method returns the sequences which are bound to this target.
      * 
      * @return A {@link Set} of {@link TransformationSequence} is returned.

@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
+import com.puresoltechnologies.graph.CycleAnalyzer;
 import com.puresoltechnologies.graph.DeadEndAnalyzer;
+import com.puresoltechnologies.graph.SubgraphAnalyzer;
 import com.puresoltechnologies.statemodel.AbstractStateModel;
 import com.puresoltechnologies.versioning.Version;
 import com.puresoltechnologies.versioning.VersionMath;
@@ -46,6 +49,14 @@ public class MigrationModel extends
 	    throw new InvalidSequenceException(
 		    "There are dead ends in the model which do not allow to migrate to latest version.");
 	}
+	if (CycleAnalyzer.hasCycles(model, model.getStartState(), true)) {
+	    throw new InvalidSequenceException(
+		    "There are cycles in the model which do not allow to migrate sequentially.");
+	}
+	if (SubgraphAnalyzer.hasDisconnectedSubgraph(model)) {
+	    throw new InvalidSequenceException(
+		    "There are disconnected versions in the model which cannot be a migration target.");
+	}
 	return model;
     }
 
@@ -60,22 +71,24 @@ public class MigrationModel extends
     private final Set<MigrationState> endStates = new HashSet<>();
 
     private final ComponentTransformator transformator;
+    private final Version maximumVersion;
 
     private MigrationModel(ComponentTransformator transformator)
 	    throws InvalidSequenceException {
 	this.transformator = transformator;
 	states.put(VERSION_0_0_0, START_STATE);
-	createModel();
+	maximumVersion = createModel();
     }
 
-    private void createModel() throws InvalidSequenceException {
-	Version maxTargetVersion = START_STATE.getVersion();
+    private Version createModel() throws InvalidSequenceException {
+	Version maximumVersion = START_STATE.getVersion();
 	endStates.clear();
 	for (TransformationSequence sequence : transformator.getSequences()) {
-	    Version startVersion = sequence.getStartVersion();
-	    Version targetVersion = sequence.getProvidedVersionRange()
+	    SequenceMetadata sequenceMetadata = sequence.getMetadata();
+	    Version startVersion = sequenceMetadata.getStartVersion();
+	    Version targetVersion = sequenceMetadata.getProvidedVersionRange()
 		    .getMinimum();
-	    maxTargetVersion = VersionMath.max(maxTargetVersion, targetVersion);
+	    maximumVersion = VersionMath.max(maximumVersion, targetVersion);
 	    if (startVersion.compareTo(targetVersion) >= 0) {
 		throw new InvalidSequenceException(
 			"Sequence with start version "
@@ -96,7 +109,8 @@ public class MigrationModel extends
 	    }
 	    startState.addMigration(targetState, sequence);
 	}
-	endStates.add(states.get(maxTargetVersion));
+	endStates.add(states.get(maximumVersion));
+	return maximumVersion;
     }
 
     @Override
@@ -114,6 +128,10 @@ public class MigrationModel extends
 	return endStates;
     }
 
+    public Version getMaximumVersion() {
+	return maximumVersion;
+    }
+
     public void print(PrintStream stream) {
 	MigrationState state = START_STATE;
 	print(stream, state, new Vector<Migration>());
@@ -129,7 +147,7 @@ public class MigrationModel extends
 	for (int index = 0; index < migrations.size(); index++) {
 	    Migration migration = migrations.get(index);
 	    VersionRange providedVersionRange = migration.getSequence()
-		    .getProvidedVersionRange();
+		    .getMetadata().getProvidedVersionRange();
 	    if (providedVersionRange.getMinimum().compareTo(version) > 0) {
 		stream.print(". ");
 	    } else if (providedVersionRange.getMinimum().compareTo(version) == 0) {
@@ -147,7 +165,7 @@ public class MigrationModel extends
 	}
 	for (Migration migration : state.getTransitions()) {
 	    VersionRange providedVersionRange = migration.getSequence()
-		    .getProvidedVersionRange();
+		    .getMetadata().getProvidedVersionRange();
 	    nextVersion = nextVersion != null ? //
 	    VersionMath.min(nextVersion, providedVersionRange.getMinimum()) //
 		    : providedVersionRange.getMinimum();
@@ -158,7 +176,7 @@ public class MigrationModel extends
 	for (int index = 0; index < migrations.size(); index++) {
 	    Migration migration = migrations.get(index);
 	    VersionRange providedVersionRange = migration.getSequence()
-		    .getProvidedVersionRange();
+		    .getMetadata().getProvidedVersionRange();
 	    if (providedVersionRange.includes(version)) {
 		stream.print("| ");
 	    } else if (providedVersionRange.getMinimum().compareTo(version) > 0) {

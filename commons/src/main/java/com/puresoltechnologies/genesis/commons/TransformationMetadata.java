@@ -10,60 +10,47 @@ import com.puresoltechnologies.versioning.Version;
  */
 public class TransformationMetadata {
 
-    private Version version;
-    private String developer;
-    private String component;
-    private String command;
-    private String comment;
+    private final SequenceMetadata sequenceMetadata;
+    private final Version version;
+    private final String developer;
+    private final String component;
+    private final String command;
+    private final String comment;
 
-    public TransformationMetadata(Version version, String developer,
-	    String component, String command, String comment) {
+    public TransformationMetadata(SequenceMetadata sequenceMetadata,
+	    Version version, String developer, String component,
+	    String command, String comment) {
 	super();
+	this.sequenceMetadata = sequenceMetadata;
 	this.version = version;
 	this.developer = developer;
 	this.component = component;
 	this.command = command;
 	this.comment = comment;
+    }
+
+    public SequenceMetadata getSequenceMetadata() {
+	return sequenceMetadata;
     }
 
     public Version getVersion() {
 	return version;
     }
 
-    public void setVersion(Version version) {
-	this.version = version;
-    }
-
     public String getDeveloper() {
 	return developer;
-    }
-
-    public void setDeveloper(String developer) {
-	this.developer = developer;
     }
 
     public String getComponent() {
 	return component;
     }
 
-    public void setComponent(String component) {
-	this.component = component;
-    }
-
     public String getCommand() {
 	return command;
     }
 
-    public void setCommand(String command) {
-	this.command = command;
-    }
-
     public String getComment() {
 	return comment;
-    }
-
-    public void setComment(String comment) {
-	this.comment = comment;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.puresoltechnologies.genesis.transformation.cassandra;
 
 import com.datastax.driver.core.Session;
+import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.versioning.Version;
@@ -10,12 +11,13 @@ public class CassandraCQLTransformationStep extends
 
     private final TransformationMetadata metadata;
 
-    public CassandraCQLTransformationStep(Session session, Version version,
+    public CassandraCQLTransformationStep(Session session,
+	    SequenceMetadata sequenceMetadata, Version version,
 	    String developer, String component, String cqlCommand,
 	    String comment) {
 	super(session);
-	metadata = new TransformationMetadata(version, developer, component,
-		cqlCommand, comment);
+	metadata = new TransformationMetadata(sequenceMetadata, version,
+		developer, component, cqlCommand, comment);
     }
 
     @Override

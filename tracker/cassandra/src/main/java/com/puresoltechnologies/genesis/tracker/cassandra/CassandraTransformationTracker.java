@@ -17,6 +17,7 @@ import com.datastax.driver.core.Session;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
 import com.puresoltechnologies.genesis.commons.TransformationException;
+import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.commons.cassandra.CassandraUtils;
 import com.puresoltechnologies.genesis.commons.cassandra.ReplicationStrategy;
 import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
@@ -168,6 +169,12 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	    com.puresoltechnologies.genesis.tracker.spi.Severity severity,
 	    InetAddress host, Thread thread, String message, Throwable cause) {
 	// TODO Auto-generated method stub
+    }
 
+    @Override
+    public TransformationMetadata getLastTransformationMetadata(String machine,
+	    String component) {
+	// TODO Auto-generated method stub
+	return null;
     }
 }

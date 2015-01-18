@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.Date;
 
 import com.puresoltechnologies.genesis.commons.TransformationException;
+import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.versioning.Version;
 
 /**
@@ -96,4 +97,22 @@ public interface TransformationTracker extends AutoCloseable {
      */
     public void log(Date time, Severity severity, InetAddress host,
 	    Thread thread, String message, Throwable cause);
+
+    /**
+     * This method looks into the tracker storage to identify the last
+     * transformation which was run. This is used to identify the starting point
+     * for the next migration steps.
+     * 
+     * @param machine
+     *            is the name of the machine to look up for the last sequence
+     *            which was run there for the component defined later.
+     * @param component
+     *            is the name of the component to be checked for the last run
+     *            sequence.
+     * @return A {@link TransformationMetadata} object is returned containing
+     *         the last transformation meta data.
+     */
+    public TransformationMetadata getLastTransformationMetadata(String machine,
+	    String component);
+
 }

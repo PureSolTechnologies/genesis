@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
@@ -43,18 +44,9 @@ public class MigrationModelTest {
 	}
 
 	@Override
-	public Version getStartVersion() {
-	    return startVersion;
-	}
-
-	@Override
-	public VersionRange getProvidedVersionRange() {
-	    return new VersionRange(targetVersion, true, finalVersion, false);
-	}
-
-	@Override
-	public boolean isHostBased() {
-	    return false;
+	public SequenceMetadata getMetadata() {
+	    return new SequenceMetadata(startVersion, new VersionRange(
+		    targetVersion, true, finalVersion, false));
 	}
 
 	@Override

@@ -2,18 +2,19 @@ package com.puresoltechnologies.genesis.controller;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
+import com.puresoltechnologies.genesis.controller.statemodel.Migration;
+import com.puresoltechnologies.genesis.controller.statemodel.MigrationModel;
+import com.puresoltechnologies.genesis.controller.statemodel.MigrationState;
 import com.puresoltechnologies.genesis.tracker.spi.Severity;
 import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
@@ -88,57 +89,94 @@ public class GenesisController implements AutoCloseable {
      *            is the version to which the transformations shall take place.
      * @throws TransformationException
      *             is thrown in case of transformation issues.
+     * @throws InvalidSequenceException
      */
-    public void transform(Version targetVersion) throws TransformationException {
+    public void transform(Version targetVersion)
+	    throws TransformationException, InvalidSequenceException {
 	for (ComponentTransformator transformator : Transformators.getAll()) {
-	    List<TransformationSequence> sequences = calculateNeededSequences(
-		    transformator, targetVersion);
-	    runTransformations(sequences);
+	    MigrationModel model = MigrationModel.create(transformator);
+	    runTransformations(transformator, model, targetVersion);
 	}
     }
 
-    public void transform() throws TransformationException {
+    public void transform() throws TransformationException,
+	    InvalidSequenceException {
 	for (ComponentTransformator transformator : Transformators.getAll()) {
-	    Version targetVersion = calculateMaximumVersion(transformator);
-	    List<TransformationSequence> sequences = calculateNeededSequences(
-		    transformator, targetVersion);
-	    runTransformations(sequences);
+	    MigrationModel model = MigrationModel.create(transformator);
+	    runTransformations(transformator, model, model.getMaximumVersion());
 	}
     }
 
-    private Version calculateMaximumVersion(ComponentTransformator transformator) {
-	// FIXME
-	return null;
-    }
-
-    private void runTransformations(List<TransformationSequence> sequences)
+    private void runTransformations(ComponentTransformator transformator,
+	    MigrationModel model, Version targetVersion)
 	    throws TransformationException {
-	for (TransformationSequence sequence : sequences) {
-	    for (TransformationStep transformation : sequence
-		    .getTransformations()) {
-		TransformationMetadata metadata = transformation.getMetadata();
-		logMigrationStart(metadata);
-		if (!tracker.wasMigrated(machine.getHostAddress(),
-			metadata.getVersion(), metadata.getComponent(),
-			metadata.getCommand())) {
-		    transformation.transform();
-		    tracker.trackMigration(machine.getHostAddress(),
-			    metadata.getVersion(), metadata.getDeveloper(),
-			    metadata.getComponent(), metadata.getCommand(),
-			    metadata.getComment());
-		} else {
-		    logMigrationSkip(metadata);
+	TransformationMetadata lastTransformation = tracker
+		.getLastTransformationMetadata(machine.getHostAddress(),
+			transformator.getComponentName());
+	Migration migration = setModelToLastStateAndReturnLastMigration(model,
+		lastTransformation);
+	while (migration != null) {
+	    runSequence(migration.getSequence());
+	    model.performTransition(migration);
+	    migration = null;
+	    Version nextVersion = model.getState().getVersion();
+	    for (Migration nextMigration : model.getState().getTransitions()) {
+		MigrationState nextTargetState = nextMigration.getTargetState();
+		Version nextTargetVersion = nextTargetState.getVersion();
+		if (nextVersion.compareTo(nextTargetVersion) < 0) {
+		    nextVersion = nextTargetVersion;
+		    migration = nextMigration;
 		}
-
 	    }
 	}
     }
 
-    private List<TransformationSequence> calculateNeededSequences(
-	    ComponentTransformator transformator, Version version) {
-	Set<TransformationSequence> sequences = transformator.getSequences();
-	// FIXME
-	return new ArrayList<>(sequences);
+    private Migration setModelToLastStateAndReturnLastMigration(
+	    MigrationModel model, TransformationMetadata lastTransformation) {
+	Version currentVersion = lastTransformation.getVersion();
+	SequenceMetadata lastSequenceMetadata = lastTransformation
+		.getSequenceMetadata();
+	for (MigrationState state : model.getVertices()) {
+	    if (state.getVersion().compareTo(currentVersion) >= 0) {
+		/*
+		 * We look for a transition which leads to current version. A
+		 * state with the same version or a later is of no interest.
+		 */
+		continue;
+	    }
+	    for (Migration migration : state.getTransitions()) {
+		TransformationSequence sequence = migration.getSequence();
+		if (!sequence.getMetadata().equals(lastSequenceMetadata)) {
+		    /*
+		     * The current version is not in the provided range. So we
+		     * can proceed with the next sequence.
+		     */
+		    continue;
+		}
+		model.setState(state);
+		return migration;
+	    }
+	}
+	return null;
+    }
+
+    private void runSequence(TransformationSequence sequence)
+	    throws TransformationException {
+	for (TransformationStep transformation : sequence.getTransformations()) {
+	    TransformationMetadata metadata = transformation.getMetadata();
+	    logMigrationStart(metadata);
+	    if (!tracker.wasMigrated(machine.getHostAddress(),
+		    metadata.getVersion(), metadata.getComponent(),
+		    metadata.getCommand())) {
+		transformation.transform();
+		tracker.trackMigration(machine.getHostAddress(),
+			metadata.getVersion(), metadata.getDeveloper(),
+			metadata.getComponent(), metadata.getCommand(),
+			metadata.getComment());
+	    } else {
+		logMigrationSkip(metadata);
+	    }
+	}
     }
 
     private void logMigrationStart(TransformationMetadata metadata) {

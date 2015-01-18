@@ -132,6 +132,11 @@ public class MigrationModel extends
 	return maximumVersion;
     }
 
+    @Override
+    public void setState(MigrationState state) {
+	super.setState(state);
+    }
+
     public void print(PrintStream stream) {
 	MigrationState state = START_STATE;
 	print(stream, state, new Vector<Migration>());

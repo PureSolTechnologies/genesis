@@ -3,6 +3,12 @@ package com.puresoltechnologies.genesis.commons;
 import com.puresoltechnologies.versioning.Version;
 import com.puresoltechnologies.versioning.VersionRange;
 
+/**
+ * This value class is used to keep meta information about a transformation
+ * sequence.
+ * 
+ * @author Rick-Rainer Ludwig
+ */
 public class SequenceMetadata {
 
     private final Version startVersion;

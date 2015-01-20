@@ -40,13 +40,11 @@ public class GenesisController implements AutoCloseable {
     private final TransformationTracker tracker;
     private final InetAddress machine;
 
-    public GenesisController() throws TransformationException {
+    public GenesisController() {
 	super();
 	Transformators.loadAll();
 	tracker = loadTracker();
-	tracker.open();
 	machine = determineHost();
-	Transformators.verifySequences(tracker);
     }
 
     private TransformationTracker loadTracker() {
@@ -54,16 +52,15 @@ public class GenesisController implements AutoCloseable {
 		.load(TransformationTracker.class);
 	Iterator<TransformationTracker> iterator = trackerServices.iterator();
 	if (!iterator.hasNext()) {
-	    throw new IllegalStateException("No tracker for Trans4mator found.");
+	    throw new IllegalStateException("No tracker found.");
 	}
 	TransformationTracker tracker = iterator.next();
-	logInfo("Found migration tracker '" + tracker.getClass().getName()
+	logger.info("Found migration tracker '" + tracker.getClass().getName()
 		+ "'.");
 	if (iterator.hasNext()) {
-	    logError("Found another migration tracker '"
+	    logger.error("Found another migration tracker '"
 		    + tracker.getClass().getName() + "'!");
-	    throw new IllegalStateException(
-		    "Multiple trackers for Trans4mator found.");
+	    throw new IllegalStateException("Multiple trackers found.");
 	}
 	return tracker;
     }
@@ -77,9 +74,12 @@ public class GenesisController implements AutoCloseable {
 	}
     }
 
+    public String getHost() {
+	return machine.getHostAddress();
+    }
+
     @Override
-    public void close() throws Exception {
-	tracker.close();
+    public void close() {
 	Transformators.unloadAll();
     }
 
@@ -90,49 +90,89 @@ public class GenesisController implements AutoCloseable {
      * @throws TransformationException
      *             is thrown in case of transformation issues.
      * @throws InvalidSequenceException
+     *             is thrown in case the sequences do not provide a valid
+     *             migration model.
      */
     public void transform(Version targetVersion)
 	    throws TransformationException, InvalidSequenceException {
-	for (ComponentTransformator transformator : Transformators.getAll()) {
-	    MigrationModel model = MigrationModel.create(transformator);
-	    runTransformations(transformator, model, targetVersion);
+	tracker.open();
+	try {
+	    for (ComponentTransformator transformator : Transformators.getAll()) {
+		runTransformator(transformator, targetVersion);
+	    }
+	} finally {
+	    tracker.close();
 	}
     }
 
     public void transform() throws TransformationException,
 	    InvalidSequenceException {
-	for (ComponentTransformator transformator : Transformators.getAll()) {
-	    MigrationModel model = MigrationModel.create(transformator);
-	    runTransformations(transformator, model, model.getMaximumVersion());
+	tracker.open();
+	try {
+	    for (ComponentTransformator transformator : Transformators.getAll()) {
+		runTransformator(transformator, null);
+	    }
+	} finally {
+	    tracker.close();
 	}
     }
 
-    private void runTransformations(ComponentTransformator transformator,
-	    MigrationModel model, Version targetVersion)
-	    throws TransformationException {
+    private void runTransformator(ComponentTransformator transformator,
+	    Version targetVersion) throws InvalidSequenceException,
+	    TransformationException {
+	MigrationModel model = MigrationModel.create(transformator);
+	if (targetVersion == null) {
+	    targetVersion = model.getMaximumVersion();
+	}
+	runTransformations(transformator.getComponentName(), model,
+		targetVersion);
+    }
+
+    private void runTransformations(String componentName, MigrationModel model,
+	    Version targetVersion) throws TransformationException {
 	TransformationMetadata lastTransformation = tracker
 		.getLastTransformationMetadata(machine.getHostAddress(),
-			transformator.getComponentName());
-	Migration migration = setModelToLastStateAndReturnLastMigration(model,
-		lastTransformation);
+			componentName);
+	setModelToCurrentState(model, lastTransformation);
+	Migration migration = findNextMigration(model, targetVersion);
 	while (migration != null) {
 	    runSequence(migration.getSequence());
 	    model.performTransition(migration);
-	    migration = null;
-	    Version nextVersion = model.getState().getVersion();
-	    for (Migration nextMigration : model.getState().getTransitions()) {
-		MigrationState nextTargetState = nextMigration.getTargetState();
-		Version nextTargetVersion = nextTargetState.getVersion();
-		if (nextVersion.compareTo(nextTargetVersion) < 0) {
-		    nextVersion = nextTargetVersion;
-		    migration = nextMigration;
-		}
-	    }
+	    migration = findNextMigration(model, targetVersion);
 	}
     }
 
-    private Migration setModelToLastStateAndReturnLastMigration(
-	    MigrationModel model, TransformationMetadata lastTransformation) {
+    private Migration findNextMigration(MigrationModel model,
+	    Version targetVersion) {
+	Migration migration = null;
+	MigrationState currentState = model.getState();
+	Version nextVersion = currentState.getVersion();
+	for (Migration nextMigration : currentState.getTransitions()) {
+	    MigrationState nextTargetState = nextMigration.getTargetState();
+	    Version nextTargetVersion = nextTargetState.getVersion();
+	    if (nextTargetVersion.compareTo(targetVersion) > 0) {
+		/*
+		 * This migration goes too far and cannot be taken into account.
+		 */
+		continue;
+	    }
+	    if (nextVersion.compareTo(nextTargetVersion) < 0) {
+		nextVersion = nextTargetVersion;
+		migration = nextMigration;
+	    }
+	}
+	return migration;
+    }
+
+    private void setModelToCurrentState(MigrationModel model,
+	    TransformationMetadata lastTransformation) {
+	if (lastTransformation == null) {
+	    /*
+	     * There was no former transformation. So we keep the current start
+	     * state set as current state (default after model creation) .
+	     */
+	    return;
+	}
 	Version currentVersion = lastTransformation.getVersion();
 	SequenceMetadata lastSequenceMetadata = lastTransformation
 		.getSequenceMetadata();
@@ -154,25 +194,24 @@ public class GenesisController implements AutoCloseable {
 		    continue;
 		}
 		model.setState(state);
-		return migration;
+		return;
 	    }
 	}
-	return null;
+	throw new IllegalStateException(
+		"There was not state found which fit to the last transformation.");
     }
 
     private void runSequence(TransformationSequence sequence)
 	    throws TransformationException {
 	for (TransformationStep transformation : sequence.getTransformations()) {
 	    TransformationMetadata metadata = transformation.getMetadata();
-	    logMigrationStart(metadata);
 	    if (!tracker.wasMigrated(machine.getHostAddress(),
-		    metadata.getVersion(), metadata.getComponent(),
+		    metadata.getComponent(), metadata.getVersion(),
 		    metadata.getCommand())) {
+		logMigrationStart(metadata);
 		transformation.transform();
 		tracker.trackMigration(machine.getHostAddress(),
-			metadata.getVersion(), metadata.getDeveloper(),
-			metadata.getComponent(), metadata.getCommand(),
-			metadata.getComment());
+			metadata.getComponent(), metadata);
 	    } else {
 		logMigrationSkip(metadata);
 	    }

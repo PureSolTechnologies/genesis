@@ -61,28 +61,26 @@ public class MigrationModel extends
     }
 
     private static final Version VERSION_0_0_0 = new Version(0, 0, 0);
-    private static final MigrationState START_STATE = new MigrationState(
-	    VERSION_0_0_0);
 
     /**
      * This map contains a
      */
+    private final MigrationState startState = new MigrationState(VERSION_0_0_0);
     private final Map<Version, MigrationState> states = new HashMap<>();
     private final Set<MigrationState> endStates = new HashSet<>();
 
-    private final ComponentTransformator transformator;
     private final Version maximumVersion;
 
     private MigrationModel(ComponentTransformator transformator)
 	    throws InvalidSequenceException {
-	this.transformator = transformator;
-	states.put(VERSION_0_0_0, START_STATE);
-	maximumVersion = createModel();
+	states.put(VERSION_0_0_0, startState);
+	setState(startState);
+	maximumVersion = createModel(transformator);
     }
 
-    private Version createModel() throws InvalidSequenceException {
-	Version maximumVersion = START_STATE.getVersion();
-	endStates.clear();
+    private Version createModel(ComponentTransformator transformator)
+	    throws InvalidSequenceException {
+	Version maximumVersion = startState.getVersion();
 	for (TransformationSequence sequence : transformator.getSequences()) {
 	    SequenceMetadata sequenceMetadata = sequence.getMetadata();
 	    Version startVersion = sequenceMetadata.getStartVersion();
@@ -120,7 +118,7 @@ public class MigrationModel extends
 
     @Override
     public MigrationState getStartState() {
-	return START_STATE;
+	return startState;
     }
 
     @Override
@@ -138,7 +136,7 @@ public class MigrationModel extends
     }
 
     public void print(PrintStream stream) {
-	MigrationState state = START_STATE;
+	MigrationState state = startState;
 	print(stream, state, new Vector<Migration>());
     }
 

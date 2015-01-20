@@ -113,18 +113,18 @@ public class CassandraTransformationTracker implements TransformationTracker {
     }
 
     @Override
-    public void trackMigration(String host, Version version, String developer,
-	    String component, String command, String comment)
-	    throws TransformationException {
+    public void trackMigration(String machine, String component,
+	    TransformationMetadata metadata) throws TransformationException {
 	if (preparedInsertStatement == null) {
 	    createPreparedStatements(session);
 	}
 	try {
-	    HashId hashId = HashUtilities.createHashId(command);
+	    HashId hashId = HashUtilities.createHashId(metadata.getCommand());
 	    BoundStatement boundStatement = preparedInsertStatement.bind(
-		    new Date(), host, version.toString(), developer,
-		    component == null ? "" : component, command,
-		    hashId.toString(), comment);
+		    new Date(), machine, metadata.getVersion().toString(),
+		    metadata.getDeveloper(),
+		    component == null ? "" : component, metadata.getCommand(),
+		    hashId.toString(), metadata.getComment());
 	    session.execute(boundStatement);
 	} catch (IOException e) {
 	    throw new TransformationException(
@@ -152,13 +152,13 @@ public class CassandraTransformationTracker implements TransformationTracker {
     }
 
     @Override
-    public boolean wasMigrated(String host, Version version, String component,
-	    String command) {
+    public boolean wasMigrated(String machine, String component,
+	    Version version, String command) {
 	if (preparedSelectStatement == null) {
 	    createPreparedStatements(session);
 	}
 	String keyspaceName = component == null ? "" : component;
-	BoundStatement boundStatement = preparedSelectStatement.bind(host,
+	BoundStatement boundStatement = preparedSelectStatement.bind(machine,
 		version.toString(), keyspaceName, command);
 	ResultSet result = session.execute(boundStatement);
 	return result.iterator().hasNext();

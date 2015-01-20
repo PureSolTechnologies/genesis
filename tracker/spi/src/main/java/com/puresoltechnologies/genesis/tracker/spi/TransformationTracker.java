@@ -9,17 +9,18 @@ import com.puresoltechnologies.versioning.Version;
 
 /**
  * This interface is used to implement the migration tracker which is used by
- * {@link UniversalMigrator} to log and look up migration steps.
+ * GenesisController to log and look up migration steps.
  * 
  * @author Rick-Rainer Ludwig
  */
 public interface TransformationTracker extends AutoCloseable {
 
     /**
-     * This method is called to open the connection to the tracker.
+     * This method is called to open the connection to the tracker. The open
+     * method also performs all checks and preparations of the store.
      * 
-     * @throws MigrationException
-     *             is thrown in case of an issue.
+     * @throws TransformationException
+     *             in case the data store could not be opened and prepared.
      */
     public void open() throws TransformationException;
 
@@ -32,44 +33,38 @@ public interface TransformationTracker extends AutoCloseable {
      * 
      * @param machine
      *            is the machine the on which the transformation took place.
-     * @param version
-     *            is a {@link Version} object which specifies the version of the
-     *            software to which the migration step is assigned to.
-     * @param developer
-     *            is the name of the developer.
      * @param component
      *            is the name of the component to which the migration step is
      *            assigned.
-     * @param command
-     *            is the command which was applied or a synonym which is used to
-     *            identify the migration procedure.
-     * @param comment
-     *            is a human readable comment about what the migration step was
-     *            used to do.
-     * @throws MigrationException
-     *             is thrown in case of an issue.
+     * @param metadata
+     *            is a {@link TransformationMetadata} object to be stored as
+     *            run.
+     * @throws TransformationException
+     *             is thrown in case of an issue during the actual migration
+     *             process.
      */
-    public void trackMigration(String machine, Version version,
-	    String developer, String component, String command, String comment)
-	    throws TransformationException;
+    public void trackMigration(String machine, String component,
+	    TransformationMetadata metadata) throws TransformationException;
 
     /**
-     * This method checks whether a migration step was performed or not.
+     * This method checks whether a migration step was performed or not. It
+     * should be safe here to check for the machine, the component, the target
+     * version and the command.
      * 
      * @param machine
      *            is the machine the on which the transformation took place.
-     * @param version
-     *            is a {@link Version} object which specifies the version to be
-     *            looked up.
      * @param component
      *            is the name of the component.
+     * @param version
+     *            is the {@link Version} for which the transformation step was
+     *            run.
      * @param command
-     *            is the command or the synonym to lookup the migration.
+     *            is the command to check for execution.
      * @return <code>true</code> is returned in case the migration step was
      *         performed. Otherwise <code>false</code> is returned.
      */
-    public boolean wasMigrated(String machine, Version version,
-	    String component, String command);
+    public boolean wasMigrated(String machine, String component,
+	    Version version, String command);
 
     /**
      * Logs a piece of information.
@@ -110,7 +105,8 @@ public interface TransformationTracker extends AutoCloseable {
      *            is the name of the component to be checked for the last run
      *            sequence.
      * @return A {@link TransformationMetadata} object is returned containing
-     *         the last transformation meta data.
+     *         the last transformation meta data. The result may be
+     *         <code>null</code> here if not data is available at all.
      */
     public TransformationMetadata getLastTransformationMetadata(String machine,
 	    String component);

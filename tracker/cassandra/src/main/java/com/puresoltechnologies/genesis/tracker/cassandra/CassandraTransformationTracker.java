@@ -31,150 +31,150 @@ import com.puresoltechnologies.versioning.Version;
  */
 public class CassandraTransformationTracker implements TransformationTracker {
 
-    private static final Logger logger = LoggerFactory
-	    .getLogger(CassandraTransformationTracker.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(CassandraTransformationTracker.class);
 
-    public static final String KEYSPACE_NAME = "cluster_migration";
-    public static final String CHANGELOG_TABLE = "changelog";
+	public static final String KEYSPACE_NAME = "cluster_migration";
+	public static final String CHANGELOG_TABLE = "changelog";
 
-    private static PreparedStatement preparedInsertStatement = null;
-    private static PreparedStatement preparedSelectStatement = null;
+	private static PreparedStatement preparedInsertStatement = null;
+	private static PreparedStatement preparedSelectStatement = null;
 
-    private Cluster cluster = null;
-    private Session session = null;
+	private Cluster cluster = null;
+	private Session session = null;
 
-    @Override
-    public void open() throws TransformationException {
-	connect();
-	prepareKeyspace();
-    }
-
-    private void connect() {
-	if (cluster != null) {
-	    throw new IllegalStateException(
-		    "Cluster for migration tracker was already connected.");
+	@Override
+	public void open() throws TransformationException {
+		connect();
+		prepareKeyspace();
 	}
-	cluster = CassandraUtils.connectCluster();
-	if (session != null) {
-	    throw new IllegalStateException(
-		    "Session for migration tracker was already opened.");
-	}
-	session = CassandraUtils.connectWithoutKeyspace(cluster);
-    }
 
-    private void prepareKeyspace() throws TransformationException {
-	Metadata clusterMetadata = cluster.getMetadata();
-	KeyspaceMetadata keyspaceMetadata = clusterMetadata
-		.getKeyspace(CassandraTransformationTracker.KEYSPACE_NAME);
-	if (keyspaceMetadata == null) {
-	    logger.info("Keyspace for Cassandra migration is missing. Needs to be created...");
-	    session.execute("CREATE KEYSPACE "
-		    + CassandraTransformationTracker.KEYSPACE_NAME
-		    + " WITH replication " + "= {'class':'"
-		    + ReplicationStrategy.SIMPLE_STRATEGY.getStrategyName()
-		    + "', 'replication_factor':3};");
-	    keyspaceMetadata = clusterMetadata
-		    .getKeyspace(CassandraTransformationTracker.KEYSPACE_NAME);
-	    if (keyspaceMetadata == null) {
-		throw new TransformationException("Could not create keyspace '"
-			+ CassandraTransformationTracker.KEYSPACE_NAME + "'.");
-	    }
-	    logger.info("Keyspace for Cassandra migration created.");
+	private void connect() {
+		if (cluster != null) {
+			throw new IllegalStateException(
+					"Cluster for migration tracker was already connected.");
+		}
+		cluster = CassandraUtils.connectCluster();
+		if (session != null) {
+			throw new IllegalStateException(
+					"Session for migration tracker was already opened.");
+		}
+		session = CassandraUtils.connectWithoutKeyspace(cluster);
 	}
-	if (keyspaceMetadata
-		.getTable(CassandraTransformationTracker.CHANGELOG_TABLE) == null) {
-	    logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
-	    session.execute("CREATE TABLE "
-		    + CassandraTransformationTracker.KEYSPACE_NAME + "."
-		    + CassandraTransformationTracker.CHANGELOG_TABLE
-		    + " (time timestamp, " + "version varchar, "
-		    + "developer varchar, " + "component varchar, "
-		    + "command varchar, " + "hashid varchar, "
-		    + "comment varchar, "
-		    + "PRIMARY KEY(version, component, command));");
-	    logger.info("ChangeLog table for Cassandra migration created.");
-	}
-    }
 
-    @Override
-    public void close() {
-	if (session == null) {
-	    throw new IllegalStateException(
-		    "Session for migration tracker was not opened.");
+	private void prepareKeyspace() throws TransformationException {
+		Metadata clusterMetadata = cluster.getMetadata();
+		KeyspaceMetadata keyspaceMetadata = clusterMetadata
+				.getKeyspace(CassandraTransformationTracker.KEYSPACE_NAME);
+		if (keyspaceMetadata == null) {
+			logger.info("Keyspace for Cassandra migration is missing. Needs to be created...");
+			session.execute("CREATE KEYSPACE "
+					+ CassandraTransformationTracker.KEYSPACE_NAME
+					+ " WITH replication " + "= {'class':'"
+					+ ReplicationStrategy.SIMPLE_STRATEGY.getStrategyName()
+					+ "', 'replication_factor':3};");
+			keyspaceMetadata = clusterMetadata
+					.getKeyspace(CassandraTransformationTracker.KEYSPACE_NAME);
+			if (keyspaceMetadata == null) {
+				throw new TransformationException("Could not create keyspace '"
+						+ CassandraTransformationTracker.KEYSPACE_NAME + "'.");
+			}
+			logger.info("Keyspace for Cassandra migration created.");
+		}
+		if (keyspaceMetadata
+				.getTable(CassandraTransformationTracker.CHANGELOG_TABLE) == null) {
+			logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
+			session.execute("CREATE TABLE "
+					+ CassandraTransformationTracker.KEYSPACE_NAME + "."
+					+ CassandraTransformationTracker.CHANGELOG_TABLE
+					+ " (time timestamp, " + "version varchar, "
+					+ "developer varchar, " + "component varchar, "
+					+ "command varchar, " + "hashid varchar, "
+					+ "comment varchar, "
+					+ "PRIMARY KEY(version, component, command));");
+			logger.info("ChangeLog table for Cassandra migration created.");
+		}
 	}
-	session.close();
-	session = null;
-	if (cluster == null) {
-	    throw new IllegalStateException(
-		    "Cluster for migration tracker was not connected.");
-	}
-	cluster.close();
-	cluster = null;
-    }
 
-    @Override
-    public void trackMigration(String machine, String component,
-	    TransformationMetadata metadata) throws TransformationException {
-	if (preparedInsertStatement == null) {
-	    createPreparedStatements(session);
+	@Override
+	public void close() {
+		if (session == null) {
+			throw new IllegalStateException(
+					"Session for migration tracker was not opened.");
+		}
+		session.close();
+		session = null;
+		if (cluster == null) {
+			throw new IllegalStateException(
+					"Cluster for migration tracker was not connected.");
+		}
+		cluster.close();
+		cluster = null;
 	}
-	try {
-	    HashId hashId = HashUtilities.createHashId(metadata.getCommand());
-	    BoundStatement boundStatement = preparedInsertStatement.bind(
-		    new Date(), machine, metadata.getVersion().toString(),
-		    metadata.getDeveloper(),
-		    component == null ? "" : component, metadata.getCommand(),
-		    hashId.toString(), metadata.getComment());
-	    session.execute(boundStatement);
-	} catch (IOException e) {
-	    throw new TransformationException(
-		    "Could not track migration step.", e);
-	}
-    }
 
-    private static synchronized void createPreparedStatements(Session session) {
-	if (preparedInsertStatement == null) {
-	    preparedInsertStatement = session
-		    .prepare("INSERT INTO "
-			    + KEYSPACE_NAME
-			    + "."
-			    + CHANGELOG_TABLE
-			    + " (time, host, version, developer, component, command, hashid, comment)"
-			    + " VALUES (?, ?, ?, ?, ?, ?, ?);");
+	@Override
+	public void trackMigration(String machine, TransformationMetadata metadata)
+			throws TransformationException {
+		if (preparedInsertStatement == null) {
+			createPreparedStatements(session);
+		}
+		try {
+			HashId hashId = HashUtilities.createHashId(metadata.getCommand());
+			BoundStatement boundStatement = preparedInsertStatement.bind(
+					new Date(), machine, metadata.getStartVersion().toString(),
+					metadata.getDeveloper(), metadata.getComponentName(),
+					metadata.getCommand(), hashId.toString(),
+					metadata.getComment());
+			session.execute(boundStatement);
+		} catch (IOException e) {
+			throw new TransformationException(
+					"Could not track migration step.", e);
+		}
 	}
-	if (preparedSelectStatement == null) {
-	    preparedSelectStatement = session
-		    .prepare("SELECT host, version, component, command FROM "
-			    + KEYSPACE_NAME + "." + CHANGELOG_TABLE
-			    + " WHERE host=? AND version=?"
-			    + " AND component=?" + " AND command=?" + ";");
+
+	private static synchronized void createPreparedStatements(Session session) {
+		if (preparedInsertStatement == null) {
+			preparedInsertStatement = session
+					.prepare("INSERT INTO "
+							+ KEYSPACE_NAME
+							+ "."
+							+ CHANGELOG_TABLE
+							+ " (time, host, version, developer, component, command, hashid, comment)"
+							+ " VALUES (?, ?, ?, ?, ?, ?, ?);");
+		}
+		if (preparedSelectStatement == null) {
+			preparedSelectStatement = session
+					.prepare("SELECT host, version, component, command FROM "
+							+ KEYSPACE_NAME + "." + CHANGELOG_TABLE
+							+ " WHERE host=? AND version=?"
+							+ " AND component=?" + " AND command=?" + ";");
+		}
 	}
-    }
 
-    @Override
-    public boolean wasMigrated(String machine, String component,
-	    Version version, String command) {
-	if (preparedSelectStatement == null) {
-	    createPreparedStatements(session);
+	@Override
+	public boolean wasMigrated(String machine, String component,
+			Version version, String command) {
+		if (preparedSelectStatement == null) {
+			createPreparedStatements(session);
+		}
+		String keyspaceName = component == null ? "" : component;
+		BoundStatement boundStatement = preparedSelectStatement.bind(machine,
+				version.toString(), keyspaceName, command);
+		ResultSet result = session.execute(boundStatement);
+		return result.iterator().hasNext();
 	}
-	String keyspaceName = component == null ? "" : component;
-	BoundStatement boundStatement = preparedSelectStatement.bind(machine,
-		version.toString(), keyspaceName, command);
-	ResultSet result = session.execute(boundStatement);
-	return result.iterator().hasNext();
-    }
 
-    @Override
-    public void log(Date time,
-	    com.puresoltechnologies.genesis.tracker.spi.Severity severity,
-	    InetAddress host, Thread thread, String message, Throwable cause) {
-	// TODO Auto-generated method stub
-    }
+	@Override
+	public void log(Date time,
+			com.puresoltechnologies.genesis.tracker.spi.Severity severity,
+			InetAddress host, Thread thread, String message, Throwable cause) {
+		// TODO Auto-generated method stub
+	}
 
-    @Override
-    public TransformationMetadata getLastTransformationMetadata(String machine,
-	    String component) {
-	// TODO Auto-generated method stub
-	return null;
-    }
+	@Override
+	public TransformationMetadata getLastTransformationMetadata(String machine,
+			String component) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

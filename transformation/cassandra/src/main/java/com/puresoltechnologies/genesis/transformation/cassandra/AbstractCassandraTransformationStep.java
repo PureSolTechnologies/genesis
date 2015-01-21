@@ -4,17 +4,17 @@ import com.datastax.driver.core.Session;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
 
 public abstract class AbstractCassandraTransformationStep implements
-	TransformationStep {
+		TransformationStep {
 
-    private final Session session;
+	private final Session session;
 
-    public AbstractCassandraTransformationStep(Session session) {
-	super();
-	this.session = session;
-    }
+	public AbstractCassandraTransformationStep(Session session) {
+		super();
+		this.session = session;
+	}
 
-    protected Session getSession() {
-	return session;
-    }
+	protected Session getSession() {
+		return session;
+	}
 
 }

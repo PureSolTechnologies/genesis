@@ -11,60 +11,60 @@ import com.puresoltechnologies.versioning.VersionRange;
 
 public class TestSequence implements TransformationSequence {
 
-    private boolean isOpen = false;
+	private boolean isOpen = false;
 
-    private final List<TransformationStep> transformations = new ArrayList<>();
+	private final List<TransformationStep> transformations = new ArrayList<>();
 
-    private final String componentName;
-    private final Version startVersion;
-    private final Version targetVersion;
-    private final Version finalVersion;
+	private final String componentName;
+	private final Version startVersion;
+	private final Version targetVersion;
+	private final Version finalVersion;
 
-    public TestSequence(String componentName, Version startVersion,
-	    Version targetVersion, Version finalVersion) {
-	super();
-	this.componentName = componentName;
-	this.startVersion = startVersion;
-	this.targetVersion = targetVersion;
-	this.finalVersion = finalVersion;
-    }
-
-    @Override
-    public void open() {
-	if (isOpen) {
-	    throw new IllegalStateException(
-		    "Tracker shall not be open before opening.");
+	public TestSequence(String componentName, Version startVersion,
+			Version targetVersion, Version finalVersion) {
+		super();
+		this.componentName = componentName;
+		this.startVersion = startVersion;
+		this.targetVersion = targetVersion;
+		this.finalVersion = finalVersion;
 	}
-	isOpen = true;
-    }
 
-    @Override
-    public void close() {
-	if (!isOpen) {
-	    throw new IllegalStateException(
-		    "Tracker shall be open before closing.");
+	@Override
+	public void open() {
+		if (isOpen) {
+			throw new IllegalStateException(
+					"Tracker shall not be open before opening.");
+		}
+		isOpen = true;
 	}
-	isOpen = false;
-    }
 
-    @Override
-    public SequenceMetadata getMetadata() {
-	return new SequenceMetadata(startVersion, new VersionRange(
-		targetVersion, true, finalVersion, false));
-    }
+	@Override
+	public void close() {
+		if (!isOpen) {
+			throw new IllegalStateException(
+					"Tracker shall be open before closing.");
+		}
+		isOpen = false;
+	}
 
-    public void addTransformation(TransformationStep transformation) {
-	transformations.add(transformation);
-    }
+	@Override
+	public SequenceMetadata getMetadata() {
+		return new SequenceMetadata(componentName, startVersion,
+				new VersionRange(targetVersion, true, finalVersion, false));
+	}
 
-    @Override
-    public List<TransformationStep> getTransformations() {
-	return transformations;
-    }
+	public void addTransformation(TransformationStep transformation) {
+		transformations.add(transformation);
+	}
 
-    @Override
-    public String toString() {
-	return "Sequence from " + startVersion + " to " + targetVersion
-		+ " for " + componentName;
-    }
+	@Override
+	public List<TransformationStep> getTransformations() {
+		return transformations;
+	}
+
+	@Override
+	public String toString() {
+		return "Sequence from " + startVersion + " to " + targetVersion
+				+ " for " + componentName;
+	}
 }

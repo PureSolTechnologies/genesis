@@ -4,21 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.versioning.Version;
 
-public class GenesisControllerTest {
-
-    private final TestTransformationTracker tracker = new TestTransformationTracker();
-
-    @Before
-    public void clearTracker() {
-	TestTransformationTracker.clear();
-    }
+public class GenesisControllerTest extends AbstractControllerTest {
 
     @Test
     public void testWithoutSequences() throws TransformationException,
@@ -56,6 +48,7 @@ public class GenesisControllerTest {
     @Test
     public void testWithSingleComponentAndOneSequenceOneTransformation()
 	    throws TransformationException, InvalidSequenceException {
+	TestTransformationTracker tracker = getTracker();
 	try (GenesisController controller = new GenesisController()) {
 	    TestTransformator transformator = new TestTransformator(
 		    "component", true);
@@ -105,6 +98,7 @@ public class GenesisControllerTest {
     @Test
     public void testWithTwoComponentsAndOneSequenceOneTransformationEach()
 	    throws TransformationException, InvalidSequenceException {
+	TestTransformationTracker tracker = getTracker();
 	try (GenesisController controller = new GenesisController()) {
 	    // component1
 	    TestTransformator transformator1 = new TestTransformator(

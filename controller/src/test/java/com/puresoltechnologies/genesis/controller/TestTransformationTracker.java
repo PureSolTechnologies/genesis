@@ -128,4 +128,21 @@ public class TestTransformationTracker implements TransformationTracker {
 	return componentStore.get(componentStore.size() - 1);
     }
 
+    public synchronized int getStepCount(String machine, String component) {
+	Map<String, List<TransformationMetadata>> machineStore = store
+		.get(machine);
+	if (machineStore == null) {
+	    return 0;
+	}
+	List<TransformationMetadata> componentStore = machineStore
+		.get(component);
+	if ((componentStore == null) || (componentStore.isEmpty())) {
+	    return 0;
+	}
+	return componentStore.size();
+    }
+
+    public synchronized boolean isEmpty() {
+	return store.isEmpty();
+    }
 }

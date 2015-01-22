@@ -86,13 +86,34 @@ public class CassandraTransformationTracker implements TransformationTracker {
 			logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
 			session.execute("CREATE TABLE "
 					+ CassandraTransformationTracker.KEYSPACE_NAME + "."
-					+ CassandraTransformationTracker.CHANGELOG_TABLE
-					+ " (time timestamp, " + "version varchar, "
-					+ "developer varchar, " + "component varchar, "
-					+ "command varchar, " + "hashid varchar, "
-					+ "comment varchar, "
-					+ "PRIMARY KEY(version, component, command));");
+					+ CassandraTransformationTracker.CHANGELOG_TABLE + " ("
+					+ "machine varchar, " + "component varchar, "
+					+ "time timestamp, " + "version varchar, "
+					+ "developer varchar, " + "command varchar, "
+					+ "hashid varchar, " + "comment varchar, "
+					+ "PRIMARY KEY(machine, component, version, command));");
 			logger.info("ChangeLog table for Cassandra migration created.");
+		}
+	}
+
+	private static synchronized void createPreparedStatements(Session session) {
+		if (preparedInsertStatement == null) {
+			preparedInsertStatement = session
+					.prepare("INSERT INTO "
+							+ KEYSPACE_NAME
+							+ "."
+							+ CHANGELOG_TABLE
+							+ " (time, version, developer, machine, component, command, hashid, comment)"
+							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+		}
+		if (preparedSelectStatement == null) {
+			preparedSelectStatement = session
+					.prepare("SELECT machine, version, component, command FROM "
+							+ KEYSPACE_NAME
+							+ "."
+							+ CHANGELOG_TABLE
+							+ " WHERE machine=? AND version=?"
+							+ " AND component=?" + " AND command=?" + ";");
 		}
 	}
 
@@ -121,33 +142,14 @@ public class CassandraTransformationTracker implements TransformationTracker {
 		try {
 			HashId hashId = HashUtilities.createHashId(metadata.getCommand());
 			BoundStatement boundStatement = preparedInsertStatement.bind(
-					new Date(), machine, metadata.getStartVersion().toString(),
-					metadata.getDeveloper(), metadata.getComponentName(),
-					metadata.getCommand(), hashId.toString(),
-					metadata.getComment());
+					new Date(), metadata.getStartVersion().toString(),
+					metadata.getDeveloper(), machine,
+					metadata.getComponentName(), metadata.getCommand(),
+					hashId.toString(), metadata.getComment());
 			session.execute(boundStatement);
 		} catch (IOException e) {
 			throw new TransformationException(
 					"Could not track migration step.", e);
-		}
-	}
-
-	private static synchronized void createPreparedStatements(Session session) {
-		if (preparedInsertStatement == null) {
-			preparedInsertStatement = session
-					.prepare("INSERT INTO "
-							+ KEYSPACE_NAME
-							+ "."
-							+ CHANGELOG_TABLE
-							+ " (time, host, version, developer, component, command, hashid, comment)"
-							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
-		}
-		if (preparedSelectStatement == null) {
-			preparedSelectStatement = session
-					.prepare("SELECT host, version, component, command FROM "
-							+ KEYSPACE_NAME + "." + CHANGELOG_TABLE
-							+ " WHERE host=? AND version=?"
-							+ " AND component=?" + " AND command=?" + ";");
 		}
 	}
 
@@ -167,7 +169,7 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	@Override
 	public void log(Date time,
 			com.puresoltechnologies.genesis.tracker.spi.Severity severity,
-			InetAddress host, Thread thread, String message, Throwable cause) {
+			InetAddress machine, Thread thread, String message, Throwable cause) {
 		// TODO Auto-generated method stub
 	}
 

@@ -207,18 +207,24 @@ public class GenesisController implements AutoCloseable {
 
 	private void runSequence(TransformationSequence sequence)
 			throws TransformationException {
-		logInfo("Check and run sequence " + sequence);
-		for (TransformationStep transformation : sequence.getTransformations()) {
-			TransformationMetadata metadata = transformation.getMetadata();
-			if (!tracker.wasMigrated(machine.getHostAddress(),
-					metadata.getComponentName(), metadata.getTargetVersion(),
-					metadata.getCommand())) {
-				logMigrationStart(metadata);
-				transformation.transform();
-				tracker.trackMigration(machine.getHostAddress(), metadata);
-			} else {
-				logMigrationSkip(metadata);
+		sequence.open();
+		try {
+			logInfo("Check and run sequence " + sequence);
+			for (TransformationStep transformation : sequence
+					.getTransformations()) {
+				TransformationMetadata metadata = transformation.getMetadata();
+				if (!tracker.wasMigrated(machine.getHostAddress(),
+						metadata.getComponentName(),
+						metadata.getTargetVersion(), metadata.getCommand())) {
+					logMigrationStart(metadata);
+					transformation.transform();
+					tracker.trackMigration(machine.getHostAddress(), metadata);
+				} else {
+					logMigrationSkip(metadata);
+				}
 			}
+		} finally {
+			sequence.close();
 		}
 	}
 

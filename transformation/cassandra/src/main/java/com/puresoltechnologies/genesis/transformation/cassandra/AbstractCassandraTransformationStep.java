@@ -6,15 +6,16 @@ import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
 public abstract class AbstractCassandraTransformationStep implements
 		TransformationStep {
 
-	private final Session session;
+	private final CassandraTransformationSequence sequence;
 
-	public AbstractCassandraTransformationStep(Session session) {
+	public AbstractCassandraTransformationStep(
+			CassandraTransformationSequence sequence) {
 		super();
-		this.session = session;
+		this.sequence = sequence;
 	}
 
 	protected Session getSession() {
-		return session;
+		return sequence.getSession();
 	}
 
 }

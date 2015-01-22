@@ -1,7 +1,5 @@
 package com.puresoltechnologies.genesis.transformation.cassandra;
 
-import com.datastax.driver.core.Session;
-import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 
 public class CassandraCQLTransformationStep extends
@@ -9,12 +7,12 @@ public class CassandraCQLTransformationStep extends
 
 	private final TransformationMetadata metadata;
 
-	public CassandraCQLTransformationStep(Session session,
-			SequenceMetadata sequenceMetadata, String developer,
+	public CassandraCQLTransformationStep(
+			CassandraTransformationSequence sequence, String developer,
 			String cqlCommand, String comment) {
-		super(session);
-		metadata = new TransformationMetadata(sequenceMetadata, developer,
-				cqlCommand, comment);
+		super(sequence.getSession());
+		metadata = new TransformationMetadata(sequence.getMetadata(),
+				developer, cqlCommand, comment);
 	}
 
 	@Override

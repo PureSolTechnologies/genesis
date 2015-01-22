@@ -218,6 +218,17 @@ public class GenesisController implements AutoCloseable {
 		}
 	}
 
+	public void dropAll() throws TransformationException {
+		tracker.open();
+		try {
+			for (ComponentTransformator transformator : Transformators.getAll()) {
+				transformator.dropAll();
+			}
+		} finally {
+			tracker.close();
+		}
+	}
+
 	private void logMigrationStart(TransformationMetadata metadata) {
 		logInfo("Start migration by " + metadata.getDeveloper() + ": '"
 				+ metadata.getCommand() + "' in component "

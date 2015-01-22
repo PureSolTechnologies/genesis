@@ -225,7 +225,7 @@
 			<plugin>
 				<groupId>com.puresoltechnologies.maven.plugins</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>1.2.0</version>
+				<version>1.2.1</version>
 				<executions>
 					<execution>
 						<phase>validate</phase>

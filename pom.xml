@@ -12,6 +12,7 @@
 		<versioning.version>1.0.0</versioning.version>
 		<graphs.version>0.4.0-SNAPSHOT</graphs.version>
 		<cassandra.driver.version>2.1.2</cassandra.driver.version>
+		<officalName>Genesis</officalName>
 	</properties>
 
 	<parent>
@@ -25,7 +26,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>Genesis - ${project.artifactId}</name>
+	<name>${officalName} - ${project.artifactId}</name>
 	<description>PureSol Technologies' universal migration framework</description>
 	<inceptionYear>2014</inceptionYear>
 	<url>http://opensource.puresol-technologies.com/genesis</url>

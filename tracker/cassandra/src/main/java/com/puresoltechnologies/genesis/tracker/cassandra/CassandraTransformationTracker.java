@@ -140,7 +140,7 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ "."
 							+ CHANGELOG_TABLE
 							+ " (time, host, version, developer, component, command, hashid, comment)"
-							+ " VALUES (?, ?, ?, ?, ?, ?, ?);");
+							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 		}
 		if (preparedSelectStatement == null) {
 			preparedSelectStatement = session

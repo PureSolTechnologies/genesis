@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>transformation</artifactId>
-	<name>${project.groupId}.${project.artifactId}</name>
+	<name>${officalName} - ${project.artifactId}</name>
 	<packaging>pom</packaging>
 
 	<modules>

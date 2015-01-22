@@ -77,7 +77,7 @@ public class GenesisControllerSingeTransformatorTest extends
 
 	@Test
 	public void testFullMigration() throws InvalidSequenceException,
-			TransformationException {
+			TransformationException, NoTrackerFoundException {
 		TestTransformationTracker tracker = getTracker();
 		assertTrue(tracker.isEmpty());
 		ComponentTransformator transformator = createComplexTransformator(
@@ -100,7 +100,7 @@ public class GenesisControllerSingeTransformatorTest extends
 
 	@Test
 	public void testStepWiseMigration() throws InvalidSequenceException,
-			TransformationException {
+			TransformationException, NoTrackerFoundException {
 		TestTransformationTracker tracker = getTracker();
 		assertTrue(tracker.isEmpty());
 		ComponentTransformator transformator = createComplexTransformator(

@@ -14,7 +14,7 @@ public class GenesisControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void testWithoutSequences() throws TransformationException,
-			InvalidSequenceException {
+			InvalidSequenceException, NoTrackerFoundException {
 		try (GenesisController controller = new GenesisController()) {
 			controller.transform();
 		}
@@ -22,7 +22,8 @@ public class GenesisControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void testWithSingleComponentAndNoSequence()
-			throws TransformationException, InvalidSequenceException {
+			throws TransformationException, InvalidSequenceException,
+			NoTrackerFoundException {
 		try (GenesisController controller = new GenesisController()) {
 			Transformators.addTransformator(new TestTransformator("component",
 					true));
@@ -32,7 +33,8 @@ public class GenesisControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void testWithSingleComponentAndOneSequenceNoTransformation()
-			throws TransformationException, InvalidSequenceException {
+			throws TransformationException, InvalidSequenceException,
+			NoTrackerFoundException {
 		try (GenesisController controller = new GenesisController()) {
 			TestTransformator transformator = new TestTransformator(
 					"component", true);
@@ -47,7 +49,8 @@ public class GenesisControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void testWithSingleComponentAndOneSequenceOneTransformation()
-			throws TransformationException, InvalidSequenceException {
+			throws TransformationException, InvalidSequenceException,
+			NoTrackerFoundException {
 		TestTransformationTracker tracker = getTracker();
 		try (GenesisController controller = new GenesisController()) {
 			TestTransformator transformator = new TestTransformator(
@@ -100,7 +103,8 @@ public class GenesisControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void testWithTwoComponentsAndOneSequenceOneTransformationEach()
-			throws TransformationException, InvalidSequenceException {
+			throws TransformationException, InvalidSequenceException,
+			NoTrackerFoundException {
 		TestTransformationTracker tracker = getTracker();
 		try (GenesisController controller = new GenesisController()) {
 			// component1

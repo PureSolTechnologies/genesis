@@ -40,19 +40,21 @@ public class GenesisController implements AutoCloseable {
 	private final TransformationTracker tracker;
 	private final InetAddress machine;
 
-	public GenesisController() {
+	public GenesisController() throws NoTrackerFoundException {
 		super();
 		Transformators.loadAll();
 		tracker = loadTracker();
 		machine = determineHost();
 	}
 
-	private TransformationTracker loadTracker() {
+	private TransformationTracker loadTracker() throws NoTrackerFoundException {
 		ServiceLoader<TransformationTracker> trackerServices = ServiceLoader
 				.load(TransformationTracker.class);
 		Iterator<TransformationTracker> iterator = trackerServices.iterator();
 		if (!iterator.hasNext()) {
-			throw new IllegalStateException("No tracker found.");
+			throw new NoTrackerFoundException(
+					"No tracker via SPI for service '"
+							+ TransformationTracker.class + "' found.");
 		}
 		TransformationTracker tracker = iterator.next();
 		logger.info("Found migration tracker '" + tracker.getClass().getName()
@@ -60,7 +62,9 @@ public class GenesisController implements AutoCloseable {
 		if (iterator.hasNext()) {
 			logger.error("Found another migration tracker '"
 					+ tracker.getClass().getName() + "'!");
-			throw new IllegalStateException("Multiple trackers found.");
+			throw new NoTrackerFoundException(
+					"Multiple trackers via SPI for service '"
+							+ TransformationTracker.class + "' found.");
 		}
 		return tracker;
 	}

@@ -142,7 +142,7 @@ public class CassandraTransformationTracker implements TransformationTracker {
 		try {
 			HashId hashId = HashUtilities.createHashId(metadata.getCommand());
 			BoundStatement boundStatement = preparedInsertStatement.bind(
-					new Date(), metadata.getStartVersion().toString(),
+					new Date(), metadata.getTargetVersion().toString(),
 					metadata.getDeveloper(), machine,
 					metadata.getComponentName(), metadata.getCommand(),
 					hashId.toString(), metadata.getComment());
@@ -159,9 +159,8 @@ public class CassandraTransformationTracker implements TransformationTracker {
 		if (preparedSelectStatement == null) {
 			createPreparedStatements(session);
 		}
-		String keyspaceName = component == null ? "" : component;
 		BoundStatement boundStatement = preparedSelectStatement.bind(machine,
-				version.toString(), keyspaceName, command);
+				version.toString(), component, command);
 		ResultSet result = session.execute(boundStatement);
 		return result.iterator().hasNext();
 	}

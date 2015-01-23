@@ -187,6 +187,16 @@
 				<version>${cassandra.driver.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>net.jpountz.lz4</groupId>
+				<artifactId>lz4</artifactId>
+				<version>1.2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.xerial.snappy</groupId>
+				<artifactId>snappy-java</artifactId>
+				<version>1.1.1.6</version>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.11</version>

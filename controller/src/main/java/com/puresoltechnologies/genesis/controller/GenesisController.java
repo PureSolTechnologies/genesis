@@ -67,9 +67,11 @@ public class GenesisController implements AutoCloseable {
 	}
 
 	private static final void printRunHeader() {
-		System.out.print("==================================================");
-		System.out.print("Genesis " + BuildInformation.getVersion());
-		System.out.print("==================================================");
+		System.out
+				.println("==================================================");
+		System.out.println("Genesis " + BuildInformation.getVersion());
+		System.out
+				.println("==================================================");
 	}
 
 	private final TransformationTracker tracker;
@@ -272,17 +274,17 @@ public class GenesisController implements AutoCloseable {
 	}
 
 	private void logMigrationStart(TransformationMetadata metadata) {
-		logInfo("Start migration by " + metadata.getDeveloper() + ": '"
-				+ metadata.getCommand() + "' in component "
-				+ metadata.getComponentName() + " "
-				+ metadata.getTargetVersion() + " (comment: "
-				+ metadata.getComment() + ")");
+		logInfo("\n" + metadata.getComponentName() + " "
+				+ metadata.getTargetVersion() + " by "
+				+ metadata.getDeveloper() + " (" + metadata.getComment()
+				+ "):\n\t" + metadata.getCommand());
 	}
 
 	private void logMigrationSkip(TransformationMetadata metadata) {
-		logInfo("Skip migration by " + metadata.getDeveloper() + ": '"
-				+ metadata.getCommand() + "' " + metadata.getComponentName()
-				+ " " + metadata.getTargetVersion());
+		logInfo("\n" + metadata.getComponentName() + " "
+				+ metadata.getTargetVersion() + " by "
+				+ metadata.getDeveloper() + " (" + metadata.getComment()
+				+ "):\n\t(!)SKIPPED " + metadata.getCommand());
 	}
 
 	private void logInfo(String message) {

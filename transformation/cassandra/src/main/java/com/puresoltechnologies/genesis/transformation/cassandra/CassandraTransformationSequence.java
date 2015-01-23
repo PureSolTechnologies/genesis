@@ -67,4 +67,10 @@ public class CassandraTransformationSequence extends
 		return session;
 	}
 
+	@Override
+	public String toString() {
+		SequenceMetadata metadata = getMetadata();
+		return metadata.getComponentName() + " " + metadata.getStartVersion()
+				+ " -> " + metadata.getProvidedVersionRange().getMinimum();
+	}
 }

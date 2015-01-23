@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
@@ -34,8 +31,46 @@ import com.puresoltechnologies.versioning.Version;
  */
 public class GenesisController implements AutoCloseable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(GenesisController.class);
+	public static boolean runTransform() {
+		printRunHeader();
+		try (GenesisController controller = new GenesisController()) {
+			controller.transform();
+			return true;
+		} catch (NoTrackerFoundException | TransformationException
+				| InvalidSequenceException e) {
+			e.printStackTrace(System.err);
+			return false;
+		}
+	}
+
+	public static boolean runTransform(Version targetVersion) {
+		printRunHeader();
+		try (GenesisController controller = new GenesisController()) {
+			controller.transform(targetVersion);
+			return true;
+		} catch (NoTrackerFoundException | TransformationException
+				| InvalidSequenceException e) {
+			e.printStackTrace(System.err);
+			return false;
+		}
+	}
+
+	public static boolean runDropAll() {
+		printRunHeader();
+		try (GenesisController controller = new GenesisController()) {
+			controller.dropAll();
+			return true;
+		} catch (NoTrackerFoundException | TransformationException e) {
+			e.printStackTrace(System.err);
+			return false;
+		}
+	}
+
+	private static final void printRunHeader() {
+		System.out.print("==================================================");
+		System.out.print("Genesis " + BuildInformation.getVersion());
+		System.out.print("==================================================");
+	}
 
 	private final TransformationTracker tracker;
 	private final InetAddress machine;
@@ -57,10 +92,8 @@ public class GenesisController implements AutoCloseable {
 							+ TransformationTracker.class + "' found.");
 		}
 		TransformationTracker tracker = iterator.next();
-		logger.info("Found migration tracker '" + tracker.getClass().getName()
-				+ "'.");
 		if (iterator.hasNext()) {
-			logger.error("Found another migration tracker '"
+			System.err.println("Found another migration tracker '"
 					+ tracker.getClass().getName() + "'!");
 			throw new NoTrackerFoundException(
 					"Multiple trackers via SPI for service '"
@@ -73,8 +106,7 @@ public class GenesisController implements AutoCloseable {
 		try {
 			return InetAddress.getLocalHost();
 		} catch (UnknownHostException e) {
-			logger.warn("Could not determin host.", e);
-			return null;
+			throw new IllegalStateException("Could not determin hostname.", e);
 		}
 	}
 
@@ -255,6 +287,7 @@ public class GenesisController implements AutoCloseable {
 
 	private void logInfo(String message) {
 		log(Severity.INFO, message, null);
+		System.out.println(message);
 	}
 
 	private void logWarning(String message) {

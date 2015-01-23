@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.tracker.spi.Severity;
@@ -17,9 +14,6 @@ import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
 import com.puresoltechnologies.versioning.Version;
 
 public class TestTransformationTracker implements TransformationTracker {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(TestTransformationTracker.class);
 
 	private static boolean isOpen = false;
 	private static final Map<String, Map<String, List<TransformationMetadata>>> store = new ConcurrentHashMap<>();
@@ -108,9 +102,12 @@ public class TestTransformationTracker implements TransformationTracker {
 	@Override
 	public void log(Date time, Severity severity, InetAddress host,
 			Thread thread, String message, Throwable cause) {
-		logger.info("date=" + time.toString() + "; severity=" + severity
+		System.out.println("date=" + time.toString() + "; severity=" + severity
 				+ "; host=" + host + "; thread=" + thread + "; message="
-				+ message, cause);
+				+ message);
+		if (cause != null) {
+			cause.printStackTrace(System.err);
+		}
 	}
 
 	@Override

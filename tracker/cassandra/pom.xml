@@ -11,6 +11,20 @@
 	<artifactId>tracker.cassandra</artifactId>
 	<name>${officalName} - ${project.artifactId}</name>
 
+	<profiles>
+		<profile>
+			<id>it</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.genesis</groupId>
@@ -19,6 +33,11 @@
 		<dependency>
 			<groupId>com.puresoltechnologies.genesis</groupId>
 			<artifactId>commons.cassandra</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>controller</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.genesis</groupId>
@@ -35,6 +54,10 @@
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
 

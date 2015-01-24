@@ -89,45 +89,22 @@
 				<pluginManagement>
 					<plugins>
 						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>cassandra-maven-plugin</artifactId>
-							<version>2.0.0-1</version>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-failsafe-plugin</artifactId>
 							<executions>
 								<execution>
-									<id>cassandra-start</id>
-									<phase>pre-integration-test</phase>
 									<goals>
-										<goal>start</goal>
-									</goals>
-								</execution>
-								<execution>
-									<id>cassandra-stop</id>
-									<phase>post-integration-test</phase>
-									<goals>
-										<goal>stop</goal>
+										<goal>integration-test</goal>
+										<goal>verify</goal>
 									</goals>
 								</execution>
 							</executions>
+							<configuration>
+								<forkMode>always</forkMode>
+							</configuration>
 						</plugin>
 					</plugins>
 				</pluginManagement>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<executions>
-							<execution>
-								<goals>
-									<goal>integration-test</goal>
-									<goal>verify</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<forkMode>always</forkMode>
-						</configuration>
-					</plugin>
-				</plugins>
 			</build>
 		</profile>
 	</profiles>
@@ -142,6 +119,11 @@
 			<dependency>
 				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>commons.cassandra</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.genesis</groupId>
+				<artifactId>controller</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

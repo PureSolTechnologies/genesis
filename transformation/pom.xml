@@ -15,7 +15,7 @@
 	<modules>
 		<module>spi</module>
 		<module>cassandra</module>
-		<module>cassandra.test</module>
+		<module>titan</module>
 	</modules>
 
 </project>

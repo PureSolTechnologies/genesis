@@ -8,17 +8,25 @@
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>transformation.cassandra.test</artifactId>
+	<artifactId>transformation.titan</artifactId>
 	<name>${officalName} - ${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.genesis</groupId>
-			<artifactId>transformation.cassandra</artifactId>
+			<artifactId>commons</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>transformation.spi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thinkaurelius.titan</groupId>
+			<artifactId>titan-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thinkaurelius.titan</groupId>
+			<artifactId>titan-cassandra</artifactId>
 		</dependency>
 	</dependencies>
 

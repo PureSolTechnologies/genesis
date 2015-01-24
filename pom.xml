@@ -7,12 +7,13 @@
 	</prerequisites>
 
 	<properties>
+		<officalName>Genesis</officalName>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<commons.version>0.4.0-SNAPSHOT</commons.version>
 		<versioning.version>1.0.0</versioning.version>
 		<graphs.version>0.4.0-SNAPSHOT</graphs.version>
 		<cassandra.driver.version>2.1.2</cassandra.driver.version>
-		<officalName>Genesis</officalName>
+		<titan.version>0.5.3</titan.version>
 	</properties>
 
 	<parent>
@@ -179,6 +180,16 @@
 				<version>1.1.1.6</version>
 			</dependency>
 			<dependency>
+				<groupId>com.thinkaurelius.titan</groupId>
+				<artifactId>titan-core</artifactId>
+				<version>${titan.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.thinkaurelius.titan</groupId>
+				<artifactId>titan-cassandra</artifactId>
+				<version>${titan.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.11</version>
@@ -227,7 +238,91 @@
 							<aliases>
 								<alias>The Apache Software License, Version 2.0</alias>
 								<alias>Apache 2</alias>
+								<alias>Apache License</alias>
 								<alias>Apache License 2.0</alias>
+								<alias>Apache License Version 2.0</alias>
+								<alias>Apache Software License - Version 2.0</alias>
+							</aliases>
+							<approvedDependencies>
+								<approvedDependency>avalon-framework:avalon-framework:.*</approvedDependency>
+								<approvedDependency>commons-beanutils:commons-beanutils:.*</approvedDependency>
+								<approvedDependency>commons-codec:commons-codec:1\.2</approvedDependency>
+								<approvedDependency>commons-logging:commons-logging:.*</approvedDependency>
+								<approvedDependency>log4j:log4j:.*</approvedDependency>
+								<approvedDependency>logkit:logkit:.*</approvedDependency>
+								<approvedDependency>org.apache.*:.*:.*</approvedDependency>
+								<approvedDependency>org\.codehaus\.jettison:jettison:1\.2</approvedDependency>
+								<approvedDependency>oro:oro:2\.0\.8</approvedDependency>
+							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name>The BSD 2-Clause License</name>
+							<url>http://opensource.org/licenses/BSD-2-Clause</url>
+							<aliases>
+								<alias>BSD License</alias>
+								<alias>BSD style</alias>
+							</aliases>
+							<approvedDependencies>
+								<approvedDependency>jline:jline:.*</approvedDependency>
+							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name>The BSD 3-Clause License</name>
+							<url>http://opensource.org/licenses/BSD-3-Clause</url>
+							<aliases>
+								<alias>BSD 3-Clause</alias>
+								<alias>New BSD License</alias>
+							</aliases>
+							<approvedDependencies>
+								<approvedDependency>asm:asm.*:.*</approvedDependency>
+								<approvedDependency>org\.antlr:.*:.*</approvedDependency>
+								<approvedDependency>org\.antlr:.*:.*</approvedDependency>
+								<approvedDependency>dom4j:dom4j:1.6.1</approvedDependency>
+							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name><![CDATA[Common Development and Distribution License (CDDL-1.0)]]></name>
+							<url>http://opensource.org/licenses/CDDL-1.0</url>
+							<aliases>
+								<alias>CDDL v1.1 / GPL v2 dual license</alias>
+								<alias>Dual license consisting of the CDDL v1.1 and GPL v2</alias>
+							</aliases>
+							<approvedDependencies>
+								<approvedDependency>javax\.servlet:servlet-api:.*</approvedDependency>
+							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name>Common Public License Version 1.0 (CPL)</name>
+							<url>http://opensource.org/licenses/cpl1.0.php</url>
+							<aliases>
+								<alias>Common Public License Version 1.0</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>Eclipse Public License - v1.0</name>
+							<url>http://www.eclipse.org/legal/epl-v10.html</url>
+							<aliases>
+								<alias>Eclipse License, Version 1.0</alias>
+								<alias>Eclipse Public License - Version 1.0</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>GNU Lesser General Public License, Version 2.1</name>
+							<url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+							<aliases>
+								<alias>GNU Lesser General Public License</alias>
+								<alias>GNU Lesser General Public License, version 2.1</alias>
+								<alias>LGPL 2.1</alias>
+							</aliases>
+							<approvedDependencies>
+								<approvedDependency>colt:colt:.*</approvedDependency>
+							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name>ISC License (ISC)</name>
+							<url>http://www.opensource.org/licenses/isc-license.txt</url>
+							<aliases>
+								<alias>ISC/BSD License</alias>
 							</aliases>
 						</knownLicense>
 						<knownLicense>
@@ -235,6 +330,39 @@
 							<url>http://opensource.org/licenses/MIT</url>
 							<aliases>
 								<alias>MIT License</alias>
+								<alias>The MIT License</alias>
+							</aliases>
+							<approvedDependencies>
+								<approvedDependency>org\.slf4j:slf4j-api:1\.5\.8</approvedDependency>
+							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name>Mozilla Public License Version 1.1</name>
+							<url>http://www.mozilla.org/MPL/1.1</url>
+							<aliases>
+								<alias>MPL 1.1</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>Public Domain</name>
+							<url>http://en.wikipedia.org/wiki/Public_domain</url>
+							<aliases>
+								<alias>provided without support or warranty</alias>
+								<alias>Public domain, Sun Microsoystems</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>Snaptree License</name>
+							<url>https://github.com/nbronson/snaptree/blob/master/LICENSE</url>
+							<aliases>
+								<alias>SNAPTREE LICENSE</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>Do What the Fuck You Want to Public License</name>
+							<url>http://en.wikipedia.org/wiki/WTFPL</url>
+							<aliases>
+								<alias>WTFPL</alias>
 							</aliases>
 						</knownLicense>
 					</knownLicenses>

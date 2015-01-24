@@ -67,6 +67,15 @@ public interface TransformationTracker extends AutoCloseable {
 			Version version, String command);
 
 	/**
+	 * This method is used for a drop component to delete the whole history.
+	 * 
+	 * @param component
+	 *            is the name of the component for which the changelog is to be
+	 *            deleted.
+	 */
+	public void dropComponentHistory(String component);
+
+	/**
 	 * Logs a piece of information.
 	 * 
 	 * @param time

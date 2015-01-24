@@ -43,24 +43,23 @@ public class TestTransformationTracker implements TransformationTracker {
 	@Override
 	public synchronized void trackMigration(String machine,
 			TransformationMetadata metadata) throws TransformationException {
-		Map<String, List<TransformationMetadata>> machineStore = store
-				.get(machine);
-		if (machineStore == null) {
-			machineStore = new ConcurrentHashMap<>();
-			store.put(machine, machineStore);
-		}
 		String componentName = metadata.getComponentName();
-		List<TransformationMetadata> componentStore = machineStore
+		Map<String, List<TransformationMetadata>> componentStore = store
 				.get(componentName);
 		if (componentStore == null) {
-			componentStore = new ArrayList<>();
-			machineStore.put(componentName, componentStore);
+			componentStore = new ConcurrentHashMap<>();
+			store.put(componentName, componentStore);
 		}
-		if (componentStore.contains(metadata)) {
+		List<TransformationMetadata> machineStore = componentStore.get(machine);
+		if (machineStore == null) {
+			machineStore = new ArrayList<>();
+			componentStore.put(machine, machineStore);
+		}
+		if (machineStore.contains(metadata)) {
 			throw new IllegalStateException("Metadata '" + metadata
 					+ "' already present!");
 		}
-		componentStore.add(metadata);
+		machineStore.add(metadata);
 	}
 
 	@Override
@@ -79,24 +78,28 @@ public class TestTransformationTracker implements TransformationTracker {
 
 	public synchronized int getRunCount(String machine, String component,
 			Version version, String command) {
-		Map<String, List<TransformationMetadata>> machineStore = store
-				.get(machine);
-		if (machineStore == null) {
-			return 0;
-		}
-		List<TransformationMetadata> componentStore = machineStore
+		Map<String, List<TransformationMetadata>> componentStore = store
 				.get(component);
 		if (componentStore == null) {
 			return 0;
 		}
+		List<TransformationMetadata> machineStore = componentStore.get(machine);
+		if (machineStore == null) {
+			return 0;
+		}
 		int count = 0;
-		for (TransformationMetadata metadata : componentStore) {
+		for (TransformationMetadata metadata : machineStore) {
 			if ((metadata.getTargetVersion().compareTo(version) == 0)
 					&& (metadata.getCommand().equals(command))) {
 				count++;
 			}
 		}
 		return count;
+	}
+
+	@Override
+	public void dropComponentHistory(String component) {
+		store.remove(component);
 	}
 
 	@Override
@@ -113,31 +116,29 @@ public class TestTransformationTracker implements TransformationTracker {
 	@Override
 	public TransformationMetadata getLastTransformationMetadata(String machine,
 			String component) {
-		Map<String, List<TransformationMetadata>> machineStore = store
-				.get(machine);
-		if (machineStore == null) {
-			return null;
-		}
-		List<TransformationMetadata> componentStore = machineStore
+		Map<String, List<TransformationMetadata>> componentStore = store
 				.get(component);
-		if ((componentStore == null) || (componentStore.isEmpty())) {
+		if (componentStore == null) {
 			return null;
 		}
-		return componentStore.get(componentStore.size() - 1);
+		List<TransformationMetadata> machineStore = componentStore.get(machine);
+		if ((machineStore == null) || (machineStore.isEmpty())) {
+			return null;
+		}
+		return machineStore.get(machineStore.size() - 1);
 	}
 
 	public synchronized int getStepCount(String machine, String component) {
-		Map<String, List<TransformationMetadata>> machineStore = store
-				.get(machine);
-		if (machineStore == null) {
-			return 0;
-		}
-		List<TransformationMetadata> componentStore = machineStore
+		Map<String, List<TransformationMetadata>> componentStore = store
 				.get(component);
-		if ((componentStore == null) || (componentStore.isEmpty())) {
+		if (componentStore == null) {
 			return 0;
 		}
-		return componentStore.size();
+		List<TransformationMetadata> machineStore = componentStore.get(machine);
+		if ((machineStore == null) || (machineStore.isEmpty())) {
+			return 0;
+		}
+		return machineStore.size();
 	}
 
 	public synchronized boolean isEmpty() {

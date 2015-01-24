@@ -31,6 +31,33 @@ import com.puresoltechnologies.versioning.Version;
  */
 public class GenesisController implements AutoCloseable {
 
+	private static boolean migrate = false;
+	private static boolean drop = false;
+
+	private static void showUsage() {
+		System.out.println("Usage: <DDL.jar> (--drop | --migrate)");
+	}
+
+	public static void main(String[] args) throws Exception {
+		if (args.length == 0) {
+			showUsage();
+			return;
+		}
+		for (String arg : args) {
+			if ("--drop".equals(arg)) {
+				drop = true;
+			} else if ("--migrate".equals(arg)) {
+				migrate = true;
+			}
+		}
+		if (drop) {
+			runDropAll();
+		}
+		if (migrate) {
+			runTransform();
+		}
+	}
+
 	public static boolean runTransform() {
 		printRunHeader();
 		try (GenesisController controller = new GenesisController()) {
@@ -253,6 +280,7 @@ public class GenesisController implements AutoCloseable {
 					logMigrationStart(metadata);
 					transformation.transform();
 					tracker.trackMigration(machine.getHostAddress(), metadata);
+					logMigrationEnd(metadata);
 				} else {
 					logMigrationSkip(metadata);
 				}
@@ -280,11 +308,14 @@ public class GenesisController implements AutoCloseable {
 				+ "):\n\t" + metadata.getCommand());
 	}
 
+	private void logMigrationEnd(TransformationMetadata metadata) {
+		logInfo("done.");
+	}
+
 	private void logMigrationSkip(TransformationMetadata metadata) {
-		logInfo("\n" + metadata.getComponentName() + " "
+		logInfo("\n(!)SKIPPED: " + metadata.getComponentName() + " "
 				+ metadata.getTargetVersion() + " by "
-				+ metadata.getDeveloper() + " (" + metadata.getComment()
-				+ "):\n\t(!)SKIPPED " + metadata.getCommand());
+				+ metadata.getDeveloper() + " (" + metadata.getComment() + ")");
 	}
 
 	private void logInfo(String message) {

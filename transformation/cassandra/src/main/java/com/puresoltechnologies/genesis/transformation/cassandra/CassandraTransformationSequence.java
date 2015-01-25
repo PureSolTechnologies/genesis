@@ -46,8 +46,10 @@ public class CassandraTransformationSequence extends
 	public final void close() {
 		try {
 			session.close();
+			session = null;
 		} finally {
 			cluster.close();
+			cluster = null;
 		}
 	}
 

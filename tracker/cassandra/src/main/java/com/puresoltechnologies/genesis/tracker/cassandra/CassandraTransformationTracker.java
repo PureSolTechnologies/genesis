@@ -44,7 +44,7 @@ public class CassandraTransformationTracker implements TransformationTracker {
 
 	private PreparedStatement preparedInsertStatement = null;
 	private PreparedStatement preparedSelectStatement = null;
-	private PreparedStatement dropComponentStatement = null;
+	private PreparedStatement preparedDropComponentStatement = null;
 
 	private Cluster cluster = null;
 	private Session session = null;
@@ -144,26 +144,25 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ " WHERE machine=? AND version=?"
 							+ " AND component=?" + " AND command=?" + ";");
 		}
-		if (dropComponentStatement == null) {
-			dropComponentStatement = session.prepare("DELETE FROM " + keyspace
-					+ "." + CHANGELOG_TABLE + " WHERE component=?" + ";");
+		if (preparedDropComponentStatement == null) {
+			preparedDropComponentStatement = session.prepare("DELETE FROM "
+					+ keyspace + "." + CHANGELOG_TABLE + " WHERE component=?"
+					+ ";");
 		}
 	}
 
 	@Override
 	public void close() {
-		if (session == null) {
-			throw new IllegalStateException(
-					"Session for migration tracker was not opened.");
+		preparedInsertStatement = null;
+		preparedSelectStatement = null;
+		preparedDropComponentStatement = null;
+		try {
+			session.close();
+			session = null;
+		} finally {
+			cluster.close();
+			cluster = null;
 		}
-		session.close();
-		session = null;
-		if (cluster == null) {
-			throw new IllegalStateException(
-					"Cluster for migration tracker was not connected.");
-		}
-		cluster.close();
-		cluster = null;
 	}
 
 	@Override
@@ -200,10 +199,11 @@ public class CassandraTransformationTracker implements TransformationTracker {
 
 	@Override
 	public void dropComponentHistory(String component) {
-		if (dropComponentStatement == null) {
+		if (preparedDropComponentStatement == null) {
 			createPreparedStatements(session);
 		}
-		BoundStatement boundStatement = dropComponentStatement.bind(component);
+		BoundStatement boundStatement = preparedDropComponentStatement
+				.bind(component);
 		session.execute(boundStatement);
 	}
 

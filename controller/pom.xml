@@ -13,6 +13,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.puresoltechnologies.commons</groupId>
+			<artifactId>misc</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.puresoltechnologies.genesis</groupId>
 			<artifactId>tracker.spi</artifactId>
 		</dependency>

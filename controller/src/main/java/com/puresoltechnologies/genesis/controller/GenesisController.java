@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
@@ -60,35 +61,53 @@ public class GenesisController implements AutoCloseable {
 
 	public static boolean runTransform() {
 		printRunHeader();
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		try (GenesisController controller = new GenesisController()) {
 			controller.transform();
+			stopWatch.stop();
+			printRunFooter(true, stopWatch);
 			return true;
 		} catch (NoTrackerFoundException | TransformationException
 				| InvalidSequenceException e) {
 			e.printStackTrace(System.err);
+			stopWatch.stop();
+			printRunFooter(false, stopWatch);
 			return false;
 		}
 	}
 
 	public static boolean runTransform(Version targetVersion) {
 		printRunHeader();
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		try (GenesisController controller = new GenesisController()) {
 			controller.transform(targetVersion);
+			stopWatch.stop();
+			printRunFooter(true, stopWatch);
 			return true;
 		} catch (NoTrackerFoundException | TransformationException
 				| InvalidSequenceException e) {
 			e.printStackTrace(System.err);
+			stopWatch.stop();
+			printRunFooter(false, stopWatch);
 			return false;
 		}
 	}
 
 	public static boolean runDropAll() {
 		printRunHeader();
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		try (GenesisController controller = new GenesisController()) {
 			controller.dropAll();
+			stopWatch.stop();
+			printRunFooter(true, stopWatch);
 			return true;
 		} catch (NoTrackerFoundException | TransformationException e) {
 			e.printStackTrace(System.err);
+			stopWatch.stop();
+			printRunFooter(false, stopWatch);
 			return false;
 		}
 	}
@@ -97,6 +116,16 @@ public class GenesisController implements AutoCloseable {
 		System.out
 				.println("==================================================");
 		System.out.println("Genesis " + BuildInformation.getVersion());
+		System.out
+				.println("==================================================");
+	}
+
+	private static final void printRunFooter(boolean success,
+			StopWatch stopWatch) {
+		System.out
+				.println("==================================================");
+		System.out.println("Genesis: " + (success ? "SUCCESS" : "FAILED"));
+		System.out.println("Time:    " + stopWatch.getSeconds() + "s");
 		System.out
 				.println("==================================================");
 	}

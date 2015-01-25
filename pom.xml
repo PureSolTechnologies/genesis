@@ -9,9 +9,9 @@
 	<properties>
 		<officalName>Genesis</officalName>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<commons.version>0.4.0-SNAPSHOT</commons.version>
+		<commons.version>0.4.0</commons.version>
 		<versioning.version>1.0.0</versioning.version>
-		<graphs.version>0.4.0-SNAPSHOT</graphs.version>
+		<graphs.version>0.4.0</graphs.version>
 		<cassandra.driver.version>2.1.2</cassandra.driver.version>
 		<titan.version>0.5.3</titan.version>
 	</properties>

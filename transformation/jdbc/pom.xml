@@ -4,19 +4,22 @@
 
 	<parent>
 		<groupId>com.puresoltechnologies.genesis</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>transformation</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>transformation</artifactId>
+	<artifactId>transformation.jdbc</artifactId>
 	<name>${officalName} - ${project.artifactId}</name>
-	<packaging>pom</packaging>
 
-	<modules>
-		<module>spi</module>
-		<module>cassandra</module>
-		<module>titan</module>
-		<module>jdbc</module>
-	</modules>
+	<dependencies>
+		<dependency>
+			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>transformation.spi</artifactId>
+		</dependency>
+	</dependencies>
 
 </project>

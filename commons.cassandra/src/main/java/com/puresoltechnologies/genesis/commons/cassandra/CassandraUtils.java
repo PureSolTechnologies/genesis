@@ -42,6 +42,8 @@ public final class CassandraUtils {
 	 * 
 	 * @param host
 	 *            is the host name to connect to.
+	 * @param port
+	 *            if the port to connect to.
 	 * @return A {@link Cluster} object is returned.
 	 */
 	public static Cluster connectCluster(String host, int port) {

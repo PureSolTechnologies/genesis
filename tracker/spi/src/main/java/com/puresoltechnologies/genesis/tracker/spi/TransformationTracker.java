@@ -33,9 +33,6 @@ public interface TransformationTracker extends AutoCloseable {
 	 * 
 	 * @param machine
 	 *            is the machine the on which the transformation took place.
-	 * @param component
-	 *            is the name of the component to which the migration step is
-	 *            assigned.
 	 * @param metadata
 	 *            is a {@link TransformationMetadata} object to be stored as
 	 *            run.

@@ -76,7 +76,7 @@
 		<site>
 			<id>FTPPureSolTechnologiesCom</id>
 			<name>FTPPureSolTechnologiesCom</name>
-			<url>ftp://puresol-technologies.com/opensource.puresol-technologies.com/projects/genesis</url>
+			<url>ftp://puresol-technologies.com/opensource.puresol-technologies.com/projects/genesis/${project.version}</url>
 		</site>
 	</distributionManagement>
 

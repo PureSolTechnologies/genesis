@@ -85,16 +85,12 @@ public class GenesisControllerSingeTransformatorTest extends
 		Transformators.addTransformator(transformator);
 		try (GenesisController controller = new GenesisController()) {
 			controller.transform();
-			assertEquals(
-					2,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(1, 0, 0),
-					"command10_2"));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(2, 0, 0),
-					"command20_2"));
+			assertEquals(2, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(1, 0, 0), "command10_2"));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(2, 0, 0), "command20_2"));
 		}
 	}
 
@@ -109,82 +105,56 @@ public class GenesisControllerSingeTransformatorTest extends
 		try (GenesisController controller = new GenesisController()) {
 			// Version 0.1.0
 			controller.transform(new Version(0, 1, 0));
-			assertEquals(
-					1,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(0, 1, 0),
-					"command01"));
+			assertEquals(1, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(0, 1, 0), "command01"));
 			// Version 0.2.0
 			controller.transform(new Version(0, 2, 0));
-			assertEquals(
-					2,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(0, 2, 0),
-					"command02"));
+			assertEquals(2, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(0, 2, 0), "command02"));
 			// Version 0.1.0 (nothing to be done...)
 			controller.transform(new Version(0, 1, 0));
-			assertEquals(
-					2,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
+			assertEquals(2, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
 			// Version 0.3.0 (nothing to be done...)
 			controller.transform(new Version(0, 3, 0));
-			assertEquals(
-					2,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(0, 1, 0),
-					"command01"));
+			assertEquals(2, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(0, 1, 0), "command01"));
 			// Version 0.4.0
 			controller.transform(new Version(0, 4, 0));
-			assertEquals(
-					3,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(0, 4, 0),
-					"command04"));
+			assertEquals(3, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(0, 4, 0), "command04"));
 			// Version 1.0.0
 			controller.transform(new Version(1, 0, 0));
-			assertEquals(
-					4,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(1, 0, 0),
-					"command10"));
+			assertEquals(4, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(1, 0, 0), "command10"));
 			// Version 1.1.0
 			controller.transform(new Version(1, 1, 0));
-			assertEquals(
-					5,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(1, 1, 0),
-					"command11"));
+			assertEquals(5, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(1, 1, 0), "command11"));
 			// Version 1.2.0
 			controller.transform(new Version(1, 2, 0));
-			assertEquals(
-					6,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(1, 2, 0),
-					"command12"));
+			assertEquals(6, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(1, 2, 0), "command12"));
 			// Version 2.0.0
 			controller.transform(new Version(2, 0, 0));
-			assertEquals(
-					7,
-					tracker.getStepCount(controller.getHost(),
-							transformator.getComponentName()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(), new Version(2, 0, 0),
-					"command20"));
+			assertEquals(7, tracker.getStepCount(
+					transformator.getComponentName(), controller.getHost()));
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), new Version(2, 0, 0), "command20"));
 		}
 	}
 }

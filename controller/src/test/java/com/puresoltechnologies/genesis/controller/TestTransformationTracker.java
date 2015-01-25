@@ -16,7 +16,7 @@ import com.puresoltechnologies.versioning.Version;
 public class TestTransformationTracker implements TransformationTracker {
 
 	private static boolean isOpen = false;
-	private static final Map<String, Map<String, List<TransformationMetadata>>> store = new ConcurrentHashMap<>();
+	private static final Map<String, Map<InetAddress, List<TransformationMetadata>>> store = new ConcurrentHashMap<>();
 
 	public static synchronized void clear() {
 		store.clear();
@@ -41,10 +41,10 @@ public class TestTransformationTracker implements TransformationTracker {
 	}
 
 	@Override
-	public synchronized void trackMigration(String machine,
+	public synchronized void trackMigration(InetAddress machine,
 			TransformationMetadata metadata) throws TransformationException {
 		String componentName = metadata.getComponentName();
-		Map<String, List<TransformationMetadata>> componentStore = store
+		Map<InetAddress, List<TransformationMetadata>> componentStore = store
 				.get(componentName);
 		if (componentStore == null) {
 			componentStore = new ConcurrentHashMap<>();
@@ -63,9 +63,9 @@ public class TestTransformationTracker implements TransformationTracker {
 	}
 
 	@Override
-	public synchronized boolean wasMigrated(String machine, String component,
-			Version version, String command) {
-		int count = getRunCount(machine, component, version, command);
+	public synchronized boolean wasMigrated(String component,
+			InetAddress machine, Version version, String command) {
+		int count = getRunCount(component, machine, version, command);
 		if (count == 0) {
 			return false;
 		} else if (count > 1) {
@@ -76,9 +76,9 @@ public class TestTransformationTracker implements TransformationTracker {
 		}
 	}
 
-	public synchronized int getRunCount(String machine, String component,
+	public synchronized int getRunCount(String component, InetAddress machine,
 			Version version, String command) {
-		Map<String, List<TransformationMetadata>> componentStore = store
+		Map<InetAddress, List<TransformationMetadata>> componentStore = store
 				.get(component);
 		if (componentStore == null) {
 			return 0;
@@ -98,8 +98,13 @@ public class TestTransformationTracker implements TransformationTracker {
 	}
 
 	@Override
-	public void dropComponentHistory(String component) {
-		store.remove(component);
+	public void dropComponentHistory(String component, InetAddress machine) {
+		Map<InetAddress, List<TransformationMetadata>> componentStore = store
+				.get(component);
+		if (componentStore == null) {
+			return;
+		}
+		componentStore.remove(machine);
 	}
 
 	@Override
@@ -114,9 +119,9 @@ public class TestTransformationTracker implements TransformationTracker {
 	}
 
 	@Override
-	public TransformationMetadata getLastTransformationMetadata(String machine,
-			String component) {
-		Map<String, List<TransformationMetadata>> componentStore = store
+	public TransformationMetadata getLastTransformationMetadata(
+			String component, InetAddress machine) {
+		Map<InetAddress, List<TransformationMetadata>> componentStore = store
 				.get(component);
 		if (componentStore == null) {
 			return null;
@@ -128,8 +133,8 @@ public class TestTransformationTracker implements TransformationTracker {
 		return machineStore.get(machineStore.size() - 1);
 	}
 
-	public synchronized int getStepCount(String machine, String component) {
-		Map<String, List<TransformationMetadata>> componentStore = store
+	public synchronized int getStepCount(String component, InetAddress machine) {
+		Map<InetAddress, List<TransformationMetadata>> componentStore = store
 				.get(component);
 		if (componentStore == null) {
 			return 0;

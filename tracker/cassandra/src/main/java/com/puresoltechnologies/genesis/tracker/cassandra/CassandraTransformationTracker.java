@@ -16,6 +16,7 @@ import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
@@ -23,6 +24,7 @@ import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.commons.cassandra.CassandraUtils;
 import com.puresoltechnologies.genesis.commons.cassandra.ReplicationStrategy;
+import com.puresoltechnologies.genesis.tracker.spi.Severity;
 import com.puresoltechnologies.genesis.tracker.spi.TransformationTracker;
 import com.puresoltechnologies.versioning.Version;
 
@@ -41,10 +43,13 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	public static final int DEFAULT_CASSANDRA_PORT = 9042;
 	public static final String DEFAULT_KEYSPACE_NAME = "genesis";
 	public static final String CHANGELOG_TABLE = "changelog";
+	public static final String MIGRATIONLOG_TABLE = "migrationlog";
 
 	private PreparedStatement preparedInsertStatement = null;
 	private PreparedStatement preparedSelectStatement = null;
 	private PreparedStatement preparedDropComponentStatement = null;
+	private PreparedStatement preparedLoggingStatement = null;
+	private PreparedStatement preparedSelectLastTransformationStatement = null;
 
 	private Cluster cluster = null;
 	private Session session = null;
@@ -116,12 +121,24 @@ public class CassandraTransformationTracker implements TransformationTracker {
 			logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
 			session.execute("CREATE TABLE " + keyspace + "."
 					+ CassandraTransformationTracker.CHANGELOG_TABLE + " ("
-					+ "machine varchar, " + "component varchar, "
-					+ "time timestamp, " + "version varchar, "
-					+ "developer varchar, " + "command varchar, "
-					+ "hashid varchar, " + "comment varchar, "
+					+ "time timestamp, " + "component varchar, "
+					+ "machine varchar, " + "version varchar, "
+					+ "command varchar, " + "developer varchar, "
+					+ "comment varchar, " + "hashid varchar, "
 					+ "PRIMARY KEY(component, machine, version, command));");
 			logger.info("ChangeLog table for Cassandra migration created.");
+		}
+		if (keyspaceMetadata
+				.getTable(CassandraTransformationTracker.MIGRATIONLOG_TABLE) == null) {
+			logger.info("MigrationLog table for Cassandra migration is missing. Needs to be created...");
+			session.execute("CREATE TABLE " + keyspace + "."
+					+ CassandraTransformationTracker.MIGRATIONLOG_TABLE + " ("
+					+ "time timestamp, " + "severity varchar, "
+					+ "machine varchar, " + "thread varchar, "
+					+ "message varchar, " + "exception_type varchar, "
+					+ "exception_message varchar, " + "stacktrace varchar, "
+					+ "PRIMARY KEY(timestamp, machine, thread, message));");
+			logger.info("MigrationLog table for Cassandra migration created.");
 		}
 	}
 
@@ -132,22 +149,40 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ keyspace
 							+ "."
 							+ CHANGELOG_TABLE
-							+ " (time, version, developer, machine, component, command, hashid, comment)"
+							+ " (time, component, machine, version, command, developer, comment, hashid)"
 							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 		}
 		if (preparedSelectStatement == null) {
 			preparedSelectStatement = session
-					.prepare("SELECT machine, version, component, command FROM "
+					.prepare("SELECT component, machine, version, command FROM "
 							+ keyspace
 							+ "."
 							+ CHANGELOG_TABLE
-							+ " WHERE machine=? AND version=?"
-							+ " AND component=?" + " AND command=?" + ";");
+							+ " WHERE component=?"
+							+ " AND machine=?"
+							+ " AND version=?" + " AND command=?" + ";");
 		}
 		if (preparedDropComponentStatement == null) {
 			preparedDropComponentStatement = session.prepare("DELETE FROM "
-					+ keyspace + "." + CHANGELOG_TABLE + " WHERE component=?"
-					+ ";");
+					+ keyspace + "." + CHANGELOG_TABLE
+					+ " WHERE component=? AND machine=?;");
+		}
+		if (preparedLoggingStatement == null) {
+			preparedLoggingStatement = session
+					.prepare("INSERT INTO "
+							+ keyspace
+							+ "."
+							+ MIGRATIONLOG_TABLE
+							+ " (time, severity, machine, thread, message, exception_type, exception_message, stacktrace)"
+							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+		}
+		if (preparedSelectLastTransformationStatement == null) {
+			preparedSelectLastTransformationStatement = session
+					.prepare("SELECT component, machine, version, command FROM "
+							+ keyspace
+							+ "."
+							+ CHANGELOG_TABLE
+							+ " WHERE component=?" + " AND machine=?" + ";");
 		}
 	}
 
@@ -166,18 +201,19 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	}
 
 	@Override
-	public void trackMigration(String machine, TransformationMetadata metadata)
-			throws TransformationException {
+	public void trackMigration(InetAddress machine,
+			TransformationMetadata metadata) throws TransformationException {
 		if (preparedInsertStatement == null) {
 			createPreparedStatements(session);
 		}
 		try {
 			HashId hashId = HashUtilities.createHashId(metadata.getCommand());
 			BoundStatement boundStatement = preparedInsertStatement.bind(
-					new Date(), metadata.getTargetVersion().toString(),
-					metadata.getDeveloper(), machine,
-					metadata.getComponentName(), metadata.getCommand(),
-					hashId.toString(), metadata.getComment());
+					new Date(), metadata.getComponentName(), machine
+							.getHostAddress(), metadata.getTargetVersion()
+							.toString(), metadata.getCommand(), metadata
+							.getDeveloper(), metadata.getComment(), hashId
+							.toString());
 			session.execute(boundStatement);
 		} catch (IOException e) {
 			throw new TransformationException(
@@ -186,38 +222,61 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	}
 
 	@Override
-	public boolean wasMigrated(String machine, String component,
+	public boolean wasMigrated(String component, InetAddress machine,
 			Version version, String command) {
 		if (preparedSelectStatement == null) {
 			createPreparedStatements(session);
 		}
-		BoundStatement boundStatement = preparedSelectStatement.bind(machine,
-				version.toString(), component, command);
+		BoundStatement boundStatement = preparedSelectStatement.bind(component,
+				machine.getHostAddress(), version.toString(), command);
 		ResultSet result = session.execute(boundStatement);
 		return result.iterator().hasNext();
 	}
 
 	@Override
-	public void dropComponentHistory(String component) {
+	public void dropComponentHistory(String component, InetAddress machine) {
 		if (preparedDropComponentStatement == null) {
 			createPreparedStatements(session);
 		}
-		BoundStatement boundStatement = preparedDropComponentStatement
-				.bind(component);
+		BoundStatement boundStatement = preparedDropComponentStatement.bind(
+				component, machine.getHostAddress());
 		session.execute(boundStatement);
 	}
 
 	@Override
-	public void log(Date time,
-			com.puresoltechnologies.genesis.tracker.spi.Severity severity,
-			InetAddress machine, Thread thread, String message, Throwable cause) {
-		// TODO Auto-generated method stub
+	public void log(Date time, Severity severity, InetAddress machine,
+			Thread thread, String message, Throwable cause) {
+		if (preparedLoggingStatement == null) {
+			createPreparedStatements(session);
+		}
+		if (cause == null) {
+			BoundStatement boundStatement = preparedLoggingStatement.bind(time,
+					severity.name(), machine.getHostAddress().toString(),
+					thread.getName(), message, "", "", "");
+			session.execute(boundStatement);
+		} else {
+			BoundStatement boundStatement = preparedLoggingStatement.bind(time,
+					severity.name(), machine.getHostAddress().toString(),
+					thread.getName(), message, cause.getClass().getName(),
+					cause.getMessage(), cause.toString());
+			session.execute(boundStatement);
+		}
 	}
 
 	@Override
-	public TransformationMetadata getLastTransformationMetadata(String machine,
-			String component) {
-		// TODO Auto-generated method stub
+	public TransformationMetadata getLastTransformationMetadata(
+			String component, InetAddress machine) {
+		if (preparedSelectLastTransformationStatement == null) {
+			createPreparedStatements(session);
+		}
+		BoundStatement boundStatement = preparedSelectLastTransformationStatement
+				.bind(component, machine.getHostAddress());
+		ResultSet resultSet = session.execute(boundStatement);
+		Row next = resultSet.iterator().next();
+		if (next == null) {
+			return null;
+		}
+		// FIXME
 		return null;
 	}
 }

@@ -43,8 +43,8 @@ public interface TransformationTracker extends AutoCloseable {
 	 *             is thrown in case of an issue during the actual migration
 	 *             process.
 	 */
-	public void trackMigration(String machine, TransformationMetadata metadata)
-			throws TransformationException;
+	public void trackMigration(InetAddress machine,
+			TransformationMetadata metadata) throws TransformationException;
 
 	/**
 	 * This method checks whether a migration step was performed or not. It
@@ -63,7 +63,7 @@ public interface TransformationTracker extends AutoCloseable {
 	 * @return <code>true</code> is returned in case the migration step was
 	 *         performed. Otherwise <code>false</code> is returned.
 	 */
-	public boolean wasMigrated(String machine, String component,
+	public boolean wasMigrated(String component, InetAddress machine,
 			Version version, String command);
 
 	/**
@@ -72,8 +72,11 @@ public interface TransformationTracker extends AutoCloseable {
 	 * @param component
 	 *            is the name of the component for which the changelog is to be
 	 *            deleted.
+	 * @param machine
+	 *            is the name of the machine for which the history is to be
+	 *            dropped.
 	 */
-	public void dropComponentHistory(String component);
+	public void dropComponentHistory(String component, InetAddress machine);
 
 	/**
 	 * Logs a piece of information.
@@ -117,7 +120,7 @@ public interface TransformationTracker extends AutoCloseable {
 	 *         the last transformation meta data. The result may be
 	 *         <code>null</code> here if not data is available at all.
 	 */
-	public TransformationMetadata getLastTransformationMetadata(String machine,
-			String component);
+	public TransformationMetadata getLastTransformationMetadata(
+			String component, InetAddress machine);
 
 }

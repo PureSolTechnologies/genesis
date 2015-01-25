@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
@@ -31,6 +34,9 @@ import com.puresoltechnologies.versioning.Version;
  * @author Rick-Rainer Ludwig
  */
 public class GenesisController implements AutoCloseable {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(GenesisController.class);
 
 	private static boolean migrate = false;
 	private static boolean drop = false;
@@ -118,13 +124,18 @@ public class GenesisController implements AutoCloseable {
 		System.out.println("Genesis " + BuildInformation.getVersion());
 		System.out
 				.println("==================================================");
+		logger.info("==> Genesis " + BuildInformation.getVersion()
+				+ " started <==");
 	}
 
 	private static final void printRunFooter(boolean success,
 			StopWatch stopWatch) {
+		String stateString = success ? "SUCCESS" : "FAILED";
+		logger.info("==> Genesis " + BuildInformation.getVersion()
+				+ " finished with " + stateString + " <==");
 		System.out
 				.println("==================================================");
-		System.out.println("Genesis: " + (success ? "SUCCESS" : "FAILED"));
+		System.out.println("Genesis: " + stateString);
 		System.out.println("Time:    " + stopWatch.getSeconds() + "s");
 		System.out
 				.println("==================================================");
@@ -168,8 +179,8 @@ public class GenesisController implements AutoCloseable {
 		}
 	}
 
-	public String getHost() {
-		return machine.getHostAddress();
+	public InetAddress getHost() {
+		return machine;
 	}
 
 	@Override
@@ -225,8 +236,7 @@ public class GenesisController implements AutoCloseable {
 	private void runTransformations(String componentName, MigrationModel model,
 			Version targetVersion) throws TransformationException {
 		TransformationMetadata lastTransformation = tracker
-				.getLastTransformationMetadata(machine.getHostAddress(),
-						componentName);
+				.getLastTransformationMetadata(componentName, machine);
 		setModelToCurrentState(model, lastTransformation);
 		Migration migration = findNextMigration(model, targetVersion);
 		while (migration != null) {
@@ -303,12 +313,11 @@ public class GenesisController implements AutoCloseable {
 			for (TransformationStep transformation : sequence
 					.getTransformations()) {
 				TransformationMetadata metadata = transformation.getMetadata();
-				if (!tracker.wasMigrated(machine.getHostAddress(),
-						metadata.getComponentName(),
+				if (!tracker.wasMigrated(metadata.getComponentName(), machine,
 						metadata.getTargetVersion(), metadata.getCommand())) {
 					logMigrationStart(metadata);
 					transformation.transform();
-					tracker.trackMigration(machine.getHostAddress(), metadata);
+					tracker.trackMigration(machine, metadata);
 					logMigrationEnd(metadata);
 				} else {
 					logMigrationSkip(metadata);
@@ -323,7 +332,13 @@ public class GenesisController implements AutoCloseable {
 		tracker.open();
 		try {
 			for (ComponentTransformator transformator : Transformators.getAll()) {
+				logger.info("Dropping component '"
+						+ transformator.getComponentName()
+						+ "' and its history from Genesis.");
 				transformator.dropAll();
+				tracker.dropComponentHistory(transformator.getComponentName(),
+						machine);
+				logger.info("done.");
 			}
 		} finally {
 			tracker.close();
@@ -331,10 +346,9 @@ public class GenesisController implements AutoCloseable {
 	}
 
 	private void logMigrationStart(TransformationMetadata metadata) {
-		logInfo("\n" + metadata.getComponentName() + " "
-				+ metadata.getTargetVersion() + " by "
-				+ metadata.getDeveloper() + " (" + metadata.getComment()
-				+ "):\n\t" + metadata.getCommand());
+		logInfo(metadata.getComponentName() + " " + metadata.getTargetVersion()
+				+ " by " + metadata.getDeveloper() + " ("
+				+ metadata.getComment() + "):\n\t" + metadata.getCommand());
 	}
 
 	private void logMigrationEnd(TransformationMetadata metadata) {
@@ -342,22 +356,24 @@ public class GenesisController implements AutoCloseable {
 	}
 
 	private void logMigrationSkip(TransformationMetadata metadata) {
-		logInfo("\n(!)SKIPPED: " + metadata.getComponentName() + " "
+		logInfo("(!) SKIPPED: " + metadata.getComponentName() + " "
 				+ metadata.getTargetVersion() + " by "
 				+ metadata.getDeveloper() + " (" + metadata.getComment() + ")");
 	}
 
 	private void logInfo(String message) {
 		log(Severity.INFO, message, null);
-		System.out.println(message);
+		logger.info(message);
 	}
 
 	private void logWarning(String message) {
 		log(Severity.WARN, message, null);
+		logger.warn(message);
 	}
 
 	private void logError(String message) {
 		log(Severity.ERROR, message, null);
+		logger.error(message);
 	}
 
 	private void log(Severity severity, String message, Throwable cause) {

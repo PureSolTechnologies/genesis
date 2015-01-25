@@ -65,39 +65,30 @@ public class GenesisControllerTest extends AbstractControllerTest {
 			transformator.addSequence(sequence1);
 			Transformators.addTransformator(transformator);
 			TransformationMetadata metadata1 = step1.getMetadata();
-			assertFalse(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(),
+			assertFalse(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), metadata1.getTargetVersion(),
+					metadata1.getCommand()));
+			assertEquals(0, tracker.getRunCount(
+					transformator.getComponentName(), controller.getHost(),
 					metadata1.getTargetVersion(), metadata1.getCommand()));
-			assertEquals(
-					0,
-					tracker.getRunCount(controller.getHost(),
-							transformator.getComponentName(),
-							metadata1.getTargetVersion(),
-							metadata1.getCommand()));
 
 			controller.transform();
 
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(),
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), metadata1.getTargetVersion(),
+					metadata1.getCommand()));
+			assertEquals(1, tracker.getRunCount(
+					transformator.getComponentName(), controller.getHost(),
 					metadata1.getTargetVersion(), metadata1.getCommand()));
-			assertEquals(
-					1,
-					tracker.getRunCount(controller.getHost(),
-							transformator.getComponentName(),
-							metadata1.getTargetVersion(),
-							metadata1.getCommand()));
 
 			controller.transform();
 
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator.getComponentName(),
+			assertTrue(tracker.wasMigrated(transformator.getComponentName(),
+					controller.getHost(), metadata1.getTargetVersion(),
+					metadata1.getCommand()));
+			assertEquals(1, tracker.getRunCount(
+					transformator.getComponentName(), controller.getHost(),
 					metadata1.getTargetVersion(), metadata1.getCommand()));
-			assertEquals(
-					1,
-					tracker.getRunCount(controller.getHost(),
-							transformator.getComponentName(),
-							metadata1.getTargetVersion(),
-							metadata1.getCommand()));
 		}
 	}
 
@@ -136,66 +127,48 @@ public class GenesisControllerTest extends AbstractControllerTest {
 
 			TransformationMetadata metadata11 = step11.getMetadata();
 			TransformationMetadata metadata21 = step21.getMetadata();
-			assertFalse(tracker.wasMigrated(controller.getHost(),
-					transformator1.getComponentName(),
+			assertFalse(tracker.wasMigrated(transformator1.getComponentName(),
+					controller.getHost(), metadata11.getTargetVersion(),
+					metadata11.getCommand()));
+			assertFalse(tracker.wasMigrated(transformator2.getComponentName(),
+					controller.getHost(), metadata21.getTargetVersion(),
+					metadata21.getCommand()));
+			assertEquals(0, tracker.getRunCount(
+					transformator1.getComponentName(), controller.getHost(),
 					metadata11.getTargetVersion(), metadata11.getCommand()));
-			assertFalse(tracker.wasMigrated(controller.getHost(),
-					transformator2.getComponentName(),
+			assertEquals(0, tracker.getRunCount(
+					transformator2.getComponentName(), controller.getHost(),
 					metadata21.getTargetVersion(), metadata21.getCommand()));
-			assertEquals(
-					0,
-					tracker.getRunCount(controller.getHost(),
-							transformator1.getComponentName(),
-							metadata11.getTargetVersion(),
-							metadata11.getCommand()));
-			assertEquals(
-					0,
-					tracker.getRunCount(controller.getHost(),
-							transformator2.getComponentName(),
-							metadata21.getTargetVersion(),
-							metadata21.getCommand()));
 
 			controller.transform();
 
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator1.getComponentName(),
+			assertTrue(tracker.wasMigrated(transformator1.getComponentName(),
+					controller.getHost(), metadata11.getTargetVersion(),
+					metadata11.getCommand()));
+			assertTrue(tracker.wasMigrated(transformator2.getComponentName(),
+					controller.getHost(), metadata21.getTargetVersion(),
+					metadata21.getCommand()));
+			assertEquals(1, tracker.getRunCount(
+					transformator1.getComponentName(), controller.getHost(),
 					metadata11.getTargetVersion(), metadata11.getCommand()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator2.getComponentName(),
+			assertEquals(1, tracker.getRunCount(
+					transformator2.getComponentName(), controller.getHost(),
 					metadata21.getTargetVersion(), metadata21.getCommand()));
-			assertEquals(
-					1,
-					tracker.getRunCount(controller.getHost(),
-							transformator1.getComponentName(),
-							metadata11.getTargetVersion(),
-							metadata11.getCommand()));
-			assertEquals(
-					1,
-					tracker.getRunCount(controller.getHost(),
-							transformator2.getComponentName(),
-							metadata21.getTargetVersion(),
-							metadata21.getCommand()));
 
 			controller.transform();
 
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator1.getComponentName(),
+			assertTrue(tracker.wasMigrated(transformator1.getComponentName(),
+					controller.getHost(), metadata11.getTargetVersion(),
+					metadata11.getCommand()));
+			assertTrue(tracker.wasMigrated(transformator2.getComponentName(),
+					controller.getHost(), metadata21.getTargetVersion(),
+					metadata21.getCommand()));
+			assertEquals(1, tracker.getRunCount(
+					transformator1.getComponentName(), controller.getHost(),
 					metadata11.getTargetVersion(), metadata11.getCommand()));
-			assertTrue(tracker.wasMigrated(controller.getHost(),
-					transformator2.getComponentName(),
+			assertEquals(1, tracker.getRunCount(
+					transformator2.getComponentName(), controller.getHost(),
 					metadata21.getTargetVersion(), metadata21.getCommand()));
-			assertEquals(
-					1,
-					tracker.getRunCount(controller.getHost(),
-							transformator1.getComponentName(),
-							metadata11.getTargetVersion(),
-							metadata11.getCommand()));
-			assertEquals(
-					1,
-					tracker.getRunCount(controller.getHost(),
-							transformator2.getComponentName(),
-							metadata21.getTargetVersion(),
-							metadata21.getCommand()));
 		}
 	}
 }

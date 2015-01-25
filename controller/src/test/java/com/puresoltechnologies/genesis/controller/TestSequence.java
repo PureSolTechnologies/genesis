@@ -3,11 +3,11 @@ package com.puresoltechnologies.genesis.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.puresoltechnologies.genesis.commons.ProvidedVersionRange;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
 import com.puresoltechnologies.genesis.transformation.spi.TransformationStep;
 import com.puresoltechnologies.versioning.Version;
-import com.puresoltechnologies.versioning.VersionRange;
 
 public class TestSequence implements TransformationSequence {
 
@@ -50,7 +50,7 @@ public class TestSequence implements TransformationSequence {
 	@Override
 	public SequenceMetadata getMetadata() {
 		return new SequenceMetadata(componentName, startVersion,
-				new VersionRange(targetVersion, true, finalVersion, false));
+				new ProvidedVersionRange(targetVersion, finalVersion));
 	}
 
 	public void addTransformation(TransformationStep transformation) {

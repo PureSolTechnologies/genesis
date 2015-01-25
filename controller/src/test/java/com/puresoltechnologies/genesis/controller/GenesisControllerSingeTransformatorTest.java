@@ -43,7 +43,7 @@ public class GenesisControllerSingeTransformatorTest extends
 				.getMetadata(), "RRL", "command10_2", "comment10_2"));
 		TestSequence sequence11 = new TestSequence(
 				transformator.getComponentName(), new Version(1, 0, 0),
-				new Version(1, 1, 0), new Version(1, 1, 0));
+				new Version(1, 1, 0), new Version(1, 2, 0));
 		sequence11.addTransformation(new TestTransformationStep(sequence11
 				.getMetadata(), "RRL", "command11", "comment11"));
 		TestSequence sequence12 = new TestSequence(

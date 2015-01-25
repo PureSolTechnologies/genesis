@@ -20,6 +20,8 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
+import com.puresoltechnologies.genesis.commons.ProvidedVersionRange;
+import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.commons.cassandra.CassandraUtils;
@@ -149,7 +151,8 @@ public class CassandraTransformationTracker implements TransformationTracker {
 			session.execute("CREATE TABLE " + keyspace + "."
 					+ CassandraTransformationTracker.LAST_TRANSFORMATIONS_TABLE
 					+ " (" + "time timestamp, " + "component varchar, "
-					+ "machine varchar, " + "version varchar, "
+					+ "machine varchar, " + "start_version varchar, "
+					+ "target_version varchar, " + "next_version varchar, "
 					+ "command varchar, " + "developer varchar, "
 					+ "comment varchar, " + "hashid varchar, "
 					+ "PRIMARY KEY(component, machine));");
@@ -193,8 +196,8 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ keyspace
 							+ "."
 							+ LAST_TRANSFORMATIONS_TABLE
-							+ " (time, component, machine, version, command, developer, comment, hashid)"
-							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+							+ " (time, component, machine, start_version, target_version, next_version, command, developer, comment, hashid)"
+							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 		}
 		if (preparedSelectLastTransformationStatement == null) {
 			preparedSelectLastTransformationStatement = session
@@ -244,10 +247,12 @@ public class CassandraTransformationTracker implements TransformationTracker {
 			// Last Transformations...
 			boundStatement = preparedInsertLastTransformationStatement.bind(
 					new Date(), metadata.getComponentName(), machine
-							.getHostAddress(), metadata.getTargetVersion()
-							.toString(), metadata.getCommand(), metadata
-							.getDeveloper(), metadata.getComment(), hashId
-							.toString());
+							.getHostAddress(), metadata.getStartVersion()
+							.toString(),
+					metadata.getTargetVersion().toString(), metadata
+							.getNextVersion().toString(),
+					metadata.getCommand(), metadata.getDeveloper(), metadata
+							.getComment(), hashId.toString());
 			session.execute(boundStatement);
 		} catch (IOException e) {
 			throw new TransformationException(
@@ -310,7 +315,17 @@ public class CassandraTransformationTracker implements TransformationTracker {
 		if (next == null) {
 			return null;
 		}
-		// FIXME
-		return null;
+		Version startVersion = Version.valueOf(next.getString("start_version"));
+		Version targetVersion = Version.valueOf(next
+				.getString("target_version"));
+		Version nextVersion = Version.valueOf(next.getString("next_version"));
+		String developer = next.getString("developer");
+		String command = next.getString("command");
+		String comment = next.getString("comment");
+		SequenceMetadata sequenceMetadata = new SequenceMetadata(component,
+				startVersion, new ProvidedVersionRange(targetVersion,
+						nextVersion));
+		return new TransformationMetadata(sequenceMetadata, developer, command,
+				comment);
 	}
 }

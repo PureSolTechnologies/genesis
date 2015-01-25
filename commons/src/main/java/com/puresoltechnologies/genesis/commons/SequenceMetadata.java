@@ -1,7 +1,8 @@
 package com.puresoltechnologies.genesis.commons;
 
+import java.util.Objects;
+
 import com.puresoltechnologies.versioning.Version;
-import com.puresoltechnologies.versioning.VersionRange;
 
 /**
  * This value class is used to keep meta information about a transformation
@@ -13,11 +14,13 @@ public class SequenceMetadata {
 
 	private final String componentName;
 	private final Version startVersion;
-	private final VersionRange providedVersionRange;
+	private final ProvidedVersionRange providedVersionRange;
 
 	public SequenceMetadata(String componentName, Version startVersion,
-			VersionRange providedVersionRange) {
+			ProvidedVersionRange providedVersionRange) {
 		super();
+		Objects.requireNonNull(componentName, "componentName must not be null.");
+		Objects.requireNonNull(componentName, "startVersion must not be null.");
 		this.componentName = componentName;
 		this.startVersion = startVersion;
 		this.providedVersionRange = providedVersionRange;
@@ -46,17 +49,17 @@ public class SequenceMetadata {
 	}
 
 	/**
-	 * This method returns a {@link VersionRange} which is the range of versions
-	 * this sequence is responsible of. The minimum version does not need to be
-	 * the start version provided by {@link #getStartVersion()}. It is possible,
-	 * that a sequence of a later version was consolidated and the start version
-	 * for instance is 0.0.0, but the first version transformed to is version
-	 * 1.0.0 skipping all development versions before.
+	 * This method returns a {@link ProvidedVersionRange} which is the range of
+	 * versions this sequence is responsible of. The minimum version does not
+	 * need to be the start version provided by {@link #getStartVersion()}. It
+	 * is possible, that a sequence of a later version was consolidated and the
+	 * start version for instance is 0.0.0, but the first version transformed to
+	 * is version 1.0.0 skipping all development versions before.
 	 * 
-	 * @return A {@link VersionRange} is returned providing the range of
+	 * @return A {@link ProvidedVersionRange} is returned providing the range of
 	 *         versions this sequence can handle.
 	 */
-	public VersionRange getProvidedVersionRange() {
+	public ProvidedVersionRange getProvidedVersionRange() {
 		return providedVersionRange;
 	}
 

@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.genesis.commons.ProvidedVersionRange;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
@@ -14,7 +15,6 @@ import com.puresoltechnologies.genesis.controller.GenesisController;
 import com.puresoltechnologies.genesis.controller.InvalidSequenceException;
 import com.puresoltechnologies.genesis.controller.NoTrackerFoundException;
 import com.puresoltechnologies.versioning.Version;
-import com.puresoltechnologies.versioning.VersionRange;
 
 public class CassandraTransformationTrackerIT {
 
@@ -46,8 +46,8 @@ public class CassandraTransformationTrackerIT {
 			Version startVersion = new Version(1, 0, 0);
 			Version targetVersion = new Version(2, 0, 0);
 			Version nextVersion = new Version(3, 0, 0);
-			VersionRange providedVersionRange = new VersionRange(targetVersion,
-					true, nextVersion, false);
+			ProvidedVersionRange providedVersionRange = new ProvidedVersionRange(
+					targetVersion, nextVersion);
 			String componentName = "testComponent1";
 			SequenceMetadata sequenceMetadata = new SequenceMetadata(
 					componentName, startVersion, providedVersionRange);

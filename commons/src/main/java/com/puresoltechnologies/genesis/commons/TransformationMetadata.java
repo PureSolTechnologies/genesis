@@ -53,6 +53,10 @@ public class TransformationMetadata {
 		return sequenceMetadata.getProvidedVersionRange().getMinimum();
 	}
 
+	public Object getNextVersion() {
+		return sequenceMetadata.getProvidedVersionRange().getMaximum();
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

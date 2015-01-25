@@ -245,12 +245,13 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							.toString());
 			session.execute(boundStatement);
 			// Last Transformations...
+			String nextVersionString = metadata.getNextVersion() != null ? metadata
+					.getNextVersion().toString() : "";
 			boundStatement = preparedInsertLastTransformationStatement.bind(
 					new Date(), metadata.getComponentName(), machine
 							.getHostAddress(), metadata.getStartVersion()
 							.toString(),
-					metadata.getTargetVersion().toString(), metadata
-							.getNextVersion().toString(),
+					metadata.getTargetVersion().toString(), nextVersionString,
 					metadata.getCommand(), metadata.getDeveloper(), metadata
 							.getComment(), hashId.toString());
 			session.execute(boundStatement);
@@ -274,10 +275,14 @@ public class CassandraTransformationTracker implements TransformationTracker {
 
 	@Override
 	public void dropComponentHistory(String component, InetAddress machine) {
-		if (preparedDropComponentStatement == null) {
+		if ((preparedDropComponentStatement == null)
+				|| (preparedDropComponentLastTransformtaionStatement == null)) {
 			createPreparedStatements(session);
 		}
 		BoundStatement boundStatement = preparedDropComponentStatement.bind(
+				component, machine.getHostAddress());
+		session.execute(boundStatement);
+		boundStatement = preparedDropComponentLastTransformtaionStatement.bind(
 				component, machine.getHostAddress());
 		session.execute(boundStatement);
 	}
@@ -318,7 +323,13 @@ public class CassandraTransformationTracker implements TransformationTracker {
 		Version startVersion = Version.valueOf(next.getString("start_version"));
 		Version targetVersion = Version.valueOf(next
 				.getString("target_version"));
-		Version nextVersion = Version.valueOf(next.getString("next_version"));
+		String nextVersionString = next.getString("next_version");
+		Version nextVersion;
+		if ((nextVersionString != null) && (!nextVersionString.isEmpty())) {
+			nextVersion = Version.valueOf(nextVersionString);
+		} else {
+			nextVersion = null;
+		}
 		String developer = next.getString("developer");
 		String command = next.getString("command");
 		String comment = next.getString("comment");

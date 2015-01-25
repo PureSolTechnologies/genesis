@@ -8,7 +8,7 @@ import com.puresoltechnologies.genesis.transformation.spi.AbstractTransformation
 public abstract class AbstractJDBCTransformationSequence extends
 		AbstractTransformationSequence {
 
-	private Connection connection;
+	private final Connection connection = null;
 
 	public AbstractJDBCTransformationSequence(SequenceMetadata metadata) {
 		super(metadata);

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+	<properties>
+		<title>Usage</title>
+		<author email="ludwig@puresol-technologies.com">Rick-Rainer Ludwig</author>
+	</properties>
+
+	<!-- Optional HEAD element, which is copied as is into the XHTML <head> 
+		element -->
+	<!-- head> <meta . /> </head -->
+
+	<body>
+		<section name="Implentation of Transformations">
+			<p>
+				Transformations are implemented with three different interface
+				implementations:
+				<ol>
+					<li>
+						<a
+							href="apidocs/com/puresoltechnologies/genesis/transformation/spi/ComponentTransformator.html">ComponentTransformator</a>
+					</li>
+					<li>
+						<a
+							href="apidocs/com/puresoltechnologies/genesis/transformation/spi/TransformationSequence.html">TransformationSequence</a>
+					</li>
+					<li>
+						<a
+							href="apidocs/com/puresoltechnologies/genesis/transformation/spi/TransformationStep.html">TransformationStep</a>
+					</li>
+				</ol>
+			</p>
+			<subsection name="ComponentTransformator">
+				<p>
+					The component transformator is responsible for a single part
+					(component) of the
+					system under transformation. These parts may be
+					different databases
+					or database schemas, OS settings, component
+					installations like
+					databases, application servers or services, and
+					all other parts
+					which might need migrations during application
+					lifecycle.
+				</p>
+				<p>
+					The ComponentTransformator provides basic information about the
+					component and also the list of transformation sequences.
+				</p>
+			</subsection>
+			<subsection name="TransformationSequence">
+				<p>
+					The transformation sequences is a set of transformation steps
+					providing the transformation from one version of the system to
+					another version. The sequences must be succeeding one after another
+					without a version gap.
+				</p>
+				<p>
+					It is also possible to have additional
+					sequences for larger
+					migrations
+					steps after consolidation. For instance, for development
+					transformations are needed from start version 0.0.0 over 0.1.0 and
+					so forth to version 1.0.0. After that, a consolidation might take
+					place which provides a new sequence for start version 0.0.0 and
+					target version 1.0.0. With this approach evolutionary steps might
+					be skipped and migrations might be much faster.
+				</p>
+			</subsection>
+			<subsection name="TransformationStep">
+				<p>
+					A transformation step is a single transformation like creating a
+					single table, adding some data into a database, creating a single
+					file and so forth.
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>                                              

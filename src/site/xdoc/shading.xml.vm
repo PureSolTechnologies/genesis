@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+	<properties>
+		<title>Usage</title>
+		<author email="ludwig@puresol-technologies.com">Rick-Rainer Ludwig</author>
+	</properties>
+
+	<!-- Optional HEAD element, which is copied as is into the XHTML <head> 
+		element -->
+	<!-- head> <meta . /> </head -->
+
+	<body>
+		<section name="Building Shaded JARs">
+			<p>
+				The easiest way to use Genesis is to package the Genesis
+				Controller and the implementation of the tracker and all component
+				transformators into shaded JARs.
+			</p>
+			<p>
+				In Maven this is done via maven-shade-plugin:
+			</p>
+			<p>
+				<source><![CDATA[
+	<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-shade-plugin</artifactId>
+		<version>2.2</version>
+		<executions>
+			<execution>
+				<id>genesis</id>
+				<phase>package</phase>
+				<goals>
+					<goal>shade</goal>
+				</goals>
+				<configuration>
+					<transformers>
+						<transformer
+							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+							<mainClass>com.puresoltechnologies.genesis.controller.GenesisController</mainClass>
+						</transformer>
+						<transformer
+							implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+					</transformers>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
+]]></source>
+			</p>
+			<p>
+				The maven-shade-plugin pack a so called fat JAR. The current module
+				and all dependencies in compile or runtime scope are unpacked and
+				packaged into the module JAR. The additional setting for a main
+				class specifies the class wich is started when the target JAR is
+				started via
+				<tt>java -jar &lt;targetJAR&gt;</tt>
+				(Manifest Main-Class entry). The additional transformer specifies,
+				that SPI services in META-INF/services are collected correctly.
+			</p>
+			<p>
+				As dependencies the implemented component transformators are
+				needed which are to be run, the implemented tracker and the Genesis
+				Controller as well:
+			</p>
+			<p>
+				<source><![CDATA[
+	<dependency>
+		<groupId>${project.groupId}</groupId>
+		<artifactId>controller</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+]]></source>
+			</p>
+			<p>
+				All dependencies need to be added in compile or runtime scope.
+			</p>
+		</section>
+	</body>
+</document>                                              

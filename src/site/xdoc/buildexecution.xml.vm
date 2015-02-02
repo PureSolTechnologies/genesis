@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+	<properties>
+		<title>Usage</title>
+		<author email="ludwig@puresol-technologies.com">Rick-Rainer Ludwig</author>
+	</properties>
+
+	<!-- Optional HEAD element, which is copied as is into the XHTML <head> 
+		element -->
+	<!-- head> <meta . /> </head -->
+
+	<body>
+		<section name="Execution of Genesis during Build">
+			<p>
+				Genesis can be started during within the build process. This may
+				be used to prepare for integration tests.
+			</p>
+			<p>
+				In Maven this is done via exec-maven-plugin:
+			</p>
+			<p>
+				<source><![CDATA[
+	<plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>exec-maven-plugin</artifactId>
+		<executions>
+			<execution>
+				<id>genesis</id>
+				<phase>pre-integration-test</phase>
+				<goals>
+					<goal>java</goal>
+				</goals>
+				<configuration>
+					<includeProjectDependencies>true</includeProjectDependencies>
+					<mainClass>com.puresoltechnologies.genesis.controller.GenesisController</mainClass>
+					<arguments>
+						<argument>--drop</argument>
+						<argument>--migrate</argument>
+					</arguments>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
+]]></source>
+			</p>
+			<p>
+				The implementation above starts both procedures: drop and migrate. It
+				is possible to only start drop or migrate by removing the
+				corresponding line.
+			</p>
+			<p>
+				As dependencies the implemented component transformators are
+				needed which are to be run, the implemented tracker and the Genesis
+				Controller as well:
+			</p>
+			<p>
+				<source><![CDATA[
+	<dependency>
+		<groupId>${project.groupId}</groupId>
+		<artifactId>controller</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+]]></source>
+			</p>
+			<p>
+				All dependencies need to be added in compile or runtime scope.
+			</p>
+		</section>
+	</body>
+</document>                                              

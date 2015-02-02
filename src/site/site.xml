@@ -12,6 +12,10 @@
  		<menu name="Overview">
       			<item name="Introduction" href="introduction.html" />
       			<item name="Usage" href="usage.html" />
+      			<item name="Developing the Tracker" href="tracker.html" />
+      			<item name="Developing the Transformations" href="transformations.html" />
+      			<item name="Building Executable JARs" href="shading.html" />
+      			<item name="Running Genesis during Build" href="buildexecution.html" />
  		</menu>
 		<menu ref="modules" />
  		<menu name="Project Information">

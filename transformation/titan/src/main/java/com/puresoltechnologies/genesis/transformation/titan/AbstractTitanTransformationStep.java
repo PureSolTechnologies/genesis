@@ -12,11 +12,11 @@ public abstract class AbstractTitanTransformationStep implements
 
     public AbstractTitanTransformationStep(
 	    TitanTransformationSequence sequence, String developer,
-	    String comment) {
+	    String command, String comment) {
 	super();
 	this.sequence = sequence;
 	metadata = new TransformationMetadata(sequence.getMetadata(),
-		developer, getClass().getName(), comment);
+		developer, command, comment);
 
     }
 

@@ -2,8 +2,11 @@ package com.puresoltechnologies.genesis.controller;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ServiceLoader;
 
 import org.slf4j.Logger;
@@ -66,7 +69,7 @@ public class GenesisController implements AutoCloseable {
     }
 
     public static boolean runTransform() {
-	printRunHeader("DROP");
+	printRunHeader("MIGRATE");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	try (GenesisController controller = new GenesisController()) {
@@ -102,7 +105,7 @@ public class GenesisController implements AutoCloseable {
     }
 
     public static boolean runDropAll() {
-	printRunHeader("MIGRATE");
+	printRunHeader("DROP");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	try (GenesisController controller = new GenesisController()) {
@@ -202,7 +205,15 @@ public class GenesisController implements AutoCloseable {
 	    throws TransformationException, InvalidSequenceException {
 	tracker.open();
 	try {
-	    for (ComponentTransformator transformator : Transformators.getAll()) {
+	    List<ComponentTransformator> allTransformators = new ArrayList<>(
+		    Transformators.getAll());
+	    logInfo("The following component transformators will be run in order:");
+	    for (int i = 0; i < allTransformators.size(); ++i) {
+		ComponentTransformator transformator = allTransformators.get(i);
+		logInfo(MessageFormat.format(
+			"{0}) " + transformator.getComponentName(), i + 1));
+	    }
+	    for (ComponentTransformator transformator : allTransformators) {
 		runTransformator(transformator, targetVersion);
 	    }
 	} finally {
@@ -214,7 +225,15 @@ public class GenesisController implements AutoCloseable {
 	    InvalidSequenceException {
 	tracker.open();
 	try {
-	    for (ComponentTransformator transformator : Transformators.getAll()) {
+	    List<ComponentTransformator> allTransformators = new ArrayList<>(
+		    Transformators.getAll());
+	    logInfo("The following component transformators will be run in order:");
+	    for (int i = 0; i < allTransformators.size(); ++i) {
+		ComponentTransformator transformator = allTransformators.get(i);
+		logInfo(MessageFormat.format(
+			"{0}) " + transformator.getComponentName(), i + 1));
+	    }
+	    for (ComponentTransformator transformator : allTransformators) {
 		runTransformator(transformator, null);
 	    }
 	} finally {
@@ -225,12 +244,16 @@ public class GenesisController implements AutoCloseable {
     private void runTransformator(ComponentTransformator transformator,
 	    Version targetVersion) throws InvalidSequenceException,
 	    TransformationException {
+	logInfo("Starting transformator for component '"
+		+ transformator.getComponentName() + "'...");
 	MigrationModel model = MigrationModel.create(transformator);
 	if (targetVersion == null) {
 	    targetVersion = model.getMaximumVersion();
 	}
 	runTransformations(transformator.getComponentName(), model,
 		targetVersion);
+	logInfo("Transformator for component '"
+		+ transformator.getComponentName() + "' stopped.");
     }
 
     private void runTransformations(String componentName, MigrationModel model,

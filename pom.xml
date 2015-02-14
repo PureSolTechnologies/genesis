@@ -12,7 +12,7 @@
 		<versioning.version>1.0.0</versioning.version>
 		<graphs.version>0.4.0</graphs.version>
 		<cassandra.driver.version>2.1.2</cassandra.driver.version>
-		<titan.version>0.5.3</titan.version>
+		<titan.version>0.5.4</titan.version>
 	</properties>
 
 	<parent>

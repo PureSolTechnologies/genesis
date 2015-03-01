@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<prerequisites>
@@ -9,8 +8,8 @@
 	<properties>
 		<officalName>Genesis</officalName>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<commons.version>0.5.0-SNAPSHOT</commons.version>
-		<versioning.version>1.1.0-SNAPSHOT</versioning.version>
+		<commons.version>0.5.0</commons.version>
+		<versioning.version>1.1.0</versioning.version>
 		<graphs.version>0.4.0</graphs.version>
 		<cassandra.driver.version>2.1.2</cassandra.driver.version>
 		<titan.version>0.5.4</titan.version>
@@ -24,7 +23,7 @@
 
 	<groupId>com.puresoltechnologies.genesis</groupId>
 	<artifactId>parent</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.0</version>
 	<packaging>pom</packaging>
 
 	<name>${officalName} - ${project.artifactId}</name>
@@ -263,7 +262,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

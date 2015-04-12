@@ -1,5 +1,6 @@
 package com.puresoltechnologies.genesis.commons;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.puresoltechnologies.versioning.Version;
@@ -15,15 +16,23 @@ public class SequenceMetadata {
 	private final String componentName;
 	private final Version startVersion;
 	private final ProvidedVersionRange providedVersionRange;
+	private final SequenceDependency[] dependencies;
 
 	public SequenceMetadata(String componentName, Version startVersion,
-			ProvidedVersionRange providedVersionRange) {
+			ProvidedVersionRange providedVersionRange,
+			SequenceDependency... dependencies) {
 		super();
-		Objects.requireNonNull(componentName, "componentName must not be null.");
-		Objects.requireNonNull(componentName, "startVersion must not be null.");
-		this.componentName = componentName;
-		this.startVersion = startVersion;
-		this.providedVersionRange = providedVersionRange;
+		this.componentName = Objects.requireNonNull(componentName,
+				"componentName must not be null.");
+		this.startVersion = Objects.requireNonNull(startVersion,
+				"startVersion must not be null.");
+		Objects.requireNonNull(providedVersionRange,
+				"providedVersionRange must not be null.");
+		this.providedVersionRange = Objects.requireNonNull(
+				providedVersionRange, "providedVersionRange must not be null.");
+		Objects.requireNonNull(providedVersionRange.getTargetVersion(),
+				"targetVersion in providedVersionRange must not be null.");
+		this.dependencies = dependencies;
 	}
 
 	/**
@@ -63,6 +72,10 @@ public class SequenceMetadata {
 		return providedVersionRange;
 	}
 
+	public SequenceDependency[] getDependencies() {
+		return Arrays.copyOf(dependencies, dependencies.length);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -100,7 +113,19 @@ public class SequenceMetadata {
 
 	@Override
 	public String toString() {
-		return "Transformation Sequence: " + componentName + " " + startVersion
-				+ " -> " + providedVersionRange;
+		StringBuilder builder = new StringBuilder("Transformation Sequence: "
+				+ componentName + " " + startVersion + " -> "
+				+ providedVersionRange);
+		if ((dependencies != null) && (dependencies.length > 0)) {
+			builder.append(" (");
+			for (int i = 0; i < dependencies.length; ++i) {
+				if (i > 0) {
+					builder.append(", ");
+					builder.append(dependencies[i].toString());
+				}
+			}
+			builder.append(")");
+		}
+		return builder.toString();
 	}
 }

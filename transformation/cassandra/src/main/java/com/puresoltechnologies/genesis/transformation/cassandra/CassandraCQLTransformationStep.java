@@ -1,5 +1,8 @@
 package com.puresoltechnologies.genesis.transformation.cassandra;
 
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 
@@ -24,6 +27,10 @@ public class CassandraCQLTransformationStep extends
 	@Override
 	public void transform() {
 		Session session = getSession();
-		session.execute(metadata.getCommand());
+		PreparedStatement preparedStatement = session.prepare(metadata
+				.getCommand());
+		preparedStatement.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
+		BoundStatement boundStatement = preparedStatement.bind();
+		session.execute(boundStatement);
 	}
 }

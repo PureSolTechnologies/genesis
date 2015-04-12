@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.PreparedStatement;
@@ -44,6 +45,9 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	public static final String DEFAULT_CASSANDRA_HOST_NAME = "localhost";
 	public static final int DEFAULT_CASSANDRA_PORT = 9042;
 	public static final String DEFAULT_KEYSPACE_NAME = "genesis";
+	public static final int DEFAULT_REPLICATION_FACTOR = 1;
+	public static final String DEFAULT_REPLICATION_STRATEGY = ReplicationStrategy.SIMPLE_STRATEGY
+			.getStrategyName().toString();
 	public static final String CHANGELOG_TABLE = "changelog";
 	public static final String MIGRATIONLOG_TABLE = "migrationlog";
 	public static final String LAST_TRANSFORMATIONS_TABLE = "last_transformations";
@@ -62,6 +66,8 @@ public class CassandraTransformationTracker implements TransformationTracker {
 	private String host = DEFAULT_CASSANDRA_HOST_NAME;
 	private int port = DEFAULT_CASSANDRA_PORT;
 	private String keyspace = DEFAULT_KEYSPACE_NAME;
+	private int replicationFactor = DEFAULT_REPLICATION_FACTOR;
+	private String replicationStrategy = DEFAULT_REPLICATION_STRATEGY;
 
 	@Override
 	public void open() throws TransformationException {
@@ -84,6 +90,12 @@ public class CassandraTransformationTracker implements TransformationTracker {
 				String portString = properties.getProperty("port",
 						Integer.toString(DEFAULT_CASSANDRA_PORT));
 				port = Integer.parseInt(portString);
+				String replicationFactorString = properties.getProperty(
+						"replication.factor",
+						Integer.toString(DEFAULT_REPLICATION_FACTOR));
+				replicationFactor = Integer.parseInt(replicationFactorString);
+				replicationStrategy = properties.getProperty(
+						"replication.strategy", DEFAULT_REPLICATION_STRATEGY);
 			} catch (IOException e) {
 				System.err
 						.println("Warning: A configuration file for Cassandra Tracker was found, but could not be opened.");
@@ -110,10 +122,10 @@ public class CassandraTransformationTracker implements TransformationTracker {
 				.getKeyspace(keyspace);
 		if (keyspaceMetadata == null) {
 			logger.info("Keyspace for Cassandra migration is missing. Needs to be created...");
-			session.execute("CREATE KEYSPACE " + keyspace
-					+ " WITH replication " + "= {'class':'"
-					+ ReplicationStrategy.SIMPLE_STRATEGY.getStrategyName()
-					+ "', 'replication_factor':3};");
+			session.execute("CREATE KEYSPACE " + keyspace + " WITH " + //
+					"replication " + "= {" + //
+					"'class':'" + replicationStrategy + "', " + //
+					"'replication_factor':" + replicationFactor + "};");
 			keyspaceMetadata = clusterMetadata.getKeyspace(keyspace);
 			if (keyspaceMetadata == null) {
 				throw new TransformationException("Could not create keyspace '"
@@ -169,17 +181,23 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ CHANGELOG_TABLE
 							+ " (time, component, machine, version, command, developer, comment, hashid)"
 							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+			preparedInsertStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 		if (preparedSelectStatement == null) {
 			preparedSelectStatement = session.prepare("SELECT * FROM "
 					+ keyspace + "." + CHANGELOG_TABLE + " WHERE component=?"
 					+ " AND machine=?" + " AND version=?" + " AND command=?"
 					+ ";");
+			preparedSelectStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 		if (preparedDropComponentStatement == null) {
 			preparedDropComponentStatement = session.prepare("DELETE FROM "
 					+ keyspace + "." + CHANGELOG_TABLE
 					+ " WHERE component=? AND machine=?;");
+			preparedDropComponentStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 		if (preparedLoggingStatement == null) {
 			preparedLoggingStatement = session
@@ -189,6 +207,8 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ MIGRATIONLOG_TABLE
 							+ " (time, severity, machine, thread, message, exception_type, exception_message, stacktrace)"
 							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+			preparedLoggingStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 		if (preparedInsertLastTransformationStatement == null) {
 			preparedInsertLastTransformationStatement = session
@@ -198,18 +218,24 @@ public class CassandraTransformationTracker implements TransformationTracker {
 							+ LAST_TRANSFORMATIONS_TABLE
 							+ " (time, component, machine, start_version, target_version, next_version, command, developer, comment, hashid)"
 							+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+			preparedInsertLastTransformationStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 		if (preparedSelectLastTransformationStatement == null) {
 			preparedSelectLastTransformationStatement = session
 					.prepare("SELECT * FROM " + keyspace + "."
 							+ LAST_TRANSFORMATIONS_TABLE + " WHERE component=?"
 							+ " AND machine=?" + ";");
+			preparedSelectLastTransformationStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 		if (preparedDropComponentLastTransformtaionStatement == null) {
 			preparedDropComponentLastTransformtaionStatement = session
 					.prepare("DELETE FROM " + keyspace + "."
 							+ LAST_TRANSFORMATIONS_TABLE
 							+ " WHERE component=? AND machine=?;");
+			preparedDropComponentLastTransformtaionStatement
+					.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
 		}
 	}
 

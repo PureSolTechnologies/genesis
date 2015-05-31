@@ -69,20 +69,7 @@ public class GenesisController implements AutoCloseable {
 	}
 
 	public static boolean runTransform() {
-		printRunHeader("MIGRATE");
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-		boolean success = false;
-		try (GenesisController controller = new GenesisController()) {
-			controller.transform();
-			success = true;
-		} catch (NoTrackerFoundException | TransformationException
-				| InvalidSequenceException e) {
-			e.printStackTrace(System.err);
-		}
-		stopWatch.stop();
-		printRunFooter(success, stopWatch);
-		return success;
+		return runTransform(null);
 	}
 
 	public static boolean runTransform(Version targetVersion) {
@@ -188,6 +175,11 @@ public class GenesisController implements AutoCloseable {
 		Transformators.unloadAll();
 	}
 
+	public void transform() throws TransformationException,
+			InvalidSequenceException {
+		transform(null);
+	}
+
 	/**
 	 * 
 	 * @param targetVersion
@@ -212,26 +204,6 @@ public class GenesisController implements AutoCloseable {
 			}
 			for (ComponentTransformator transformator : allTransformators) {
 				runTransformator(transformator, targetVersion);
-			}
-		} finally {
-			tracker.close();
-		}
-	}
-
-	public void transform() throws TransformationException,
-			InvalidSequenceException {
-		tracker.open();
-		try {
-			List<ComponentTransformator> allTransformators = new ArrayList<>(
-					Transformators.getAll());
-			logInfo("The following component transformators will be run in order:");
-			for (int i = 0; i < allTransformators.size(); ++i) {
-				ComponentTransformator transformator = allTransformators.get(i);
-				logInfo(MessageFormat.format(
-						"{0}) " + transformator.getComponentName(), i + 1));
-			}
-			for (ComponentTransformator transformator : allTransformators) {
-				runTransformator(transformator, null);
 			}
 		} finally {
 			tracker.close();

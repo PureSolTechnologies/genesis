@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<prerequisites>
@@ -13,6 +14,9 @@
 		<graphs.version>0.6.0</graphs.version>
 		<cassandra.driver.version>2.1.7.1</cassandra.driver.version>
 		<titan.version>0.5.4</titan.version>
+		<hadoop.version>2.7.1</hadoop.version>
+		<hbase.version>1.1.1</hbase.version>
+		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
 	</properties>
 
 	<parent>
@@ -190,6 +194,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.genesis</groupId>
+				<artifactId>commons.hadoop</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>controller</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -259,6 +268,21 @@
 				<groupId>com.thinkaurelius.titan</groupId>
 				<artifactId>titan-cassandra</artifactId>
 				<version>${titan.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-client</artifactId>
+				<version>${hadoop.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.hbase</groupId>
+				<artifactId>hbase-client</artifactId>
+				<version>${hbase.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.phoenix</groupId>
+				<artifactId>phoenix-server-client</artifactId>
+				<version>${phoenix.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -331,7 +355,7 @@
 								<approvedDependency>log4j:log4j:.*</approvedDependency>
 								<approvedDependency>logkit:logkit:.*</approvedDependency>
 								<approvedDependency>org.apache.*:.*:.*</approvedDependency>
-								<approvedDependency>org\.codehaus\.jettison:jettison:1\.2</approvedDependency>
+								<approvedDependency>org\.codehaus\.jettison:jettison:.*</approvedDependency>
 								<approvedDependency>oro:oro:2\.0\.8</approvedDependency>
 							</approvedDependencies>
 						</knownLicense>
@@ -339,8 +363,10 @@
 							<name>The BSD 2-Clause License</name>
 							<url>http://opensource.org/licenses/BSD-2-Clause</url>
 							<aliases>
+								<alias>BSD</alias>
 								<alias>BSD License</alias>
 								<alias>BSD style</alias>
+								<alias>The BSD License</alias>
 							</aliases>
 							<approvedDependencies>
 								<approvedDependency>jline:jline:.*</approvedDependency>
@@ -352,23 +378,31 @@
 							<aliases>
 								<alias>BSD 3-Clause</alias>
 								<alias>New BSD License</alias>
+								<alias>New BSD license</alias>
+								<aliase>Modified BSD License</aliase>
 							</aliases>
 							<approvedDependencies>
 								<approvedDependency>asm:asm.*:.*</approvedDependency>
 								<approvedDependency>org\.antlr:.*:.*</approvedDependency>
 								<approvedDependency>org\.antlr:.*:.*</approvedDependency>
 								<approvedDependency>dom4j:dom4j:1.6.1</approvedDependency>
+								<approvedDependency>sqlline:sqlline:.*</approvedDependency>
 							</approvedDependencies>
 						</knownLicense>
 						<knownLicense>
 							<name><![CDATA[Common Development and Distribution License (CDDL-1.0)]]></name>
 							<url>http://opensource.org/licenses/CDDL-1.0</url>
 							<aliases>
+								<alias>CDDL 1.1</alias>
 								<alias>CDDL v1.1 / GPL v2 dual license</alias>
 								<alias>Dual license consisting of the CDDL v1.1 and GPL v2</alias>
+								<alias><![CDATA[COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0]]></alias>
 							</aliases>
 							<approvedDependencies>
+								<approvedDependency>javax\.activation:activation:.*</approvedDependency>
+								<approvedDependency>javax\.servlet:jsp-api:2.0</approvedDependency>
 								<approvedDependency>javax\.servlet:servlet-api:.*</approvedDependency>
+								<approvedDependency>javax\.servlet\.jsp:jsp-api:.*</approvedDependency>
 							</approvedDependencies>
 						</knownLicense>
 						<knownLicense>
@@ -390,13 +424,22 @@
 							<name>GNU Lesser General Public License, Version 2.1</name>
 							<url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
 							<aliases>
+								<alias>GNU General Public Library</alias>
 								<alias>GNU Lesser General Public License</alias>
 								<alias>GNU Lesser General Public License, version 2.1</alias>
+								<alias>GNU Lesser General Public License (LGPL), Version 2.1</alias>
 								<alias>LGPL 2.1</alias>
 							</aliases>
 							<approvedDependencies>
 								<approvedDependency>colt:colt:.*</approvedDependency>
 							</approvedDependencies>
+						</knownLicense>
+						<knownLicense>
+							<name>GNU Classpath</name>
+							<url>http://www.gnu.org/software/classpath/license.html</url>
+							<aliases>
+								<alias>GPL2 w/ CPE</alias>
+							</aliases>
 						</knownLicense>
 						<knownLicense>
 							<name>ISC License (ISC)</name>
@@ -437,6 +480,13 @@
 							<aliases>
 								<alias>SNAPTREE LICENSE</alias>
 							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>Sun License</name>
+							<url>http://java.oracle.com</url>
+							<approvedDependencies>
+								<approvedDependency>jdk\.tools:jdk\.tools:.*</approvedDependency>
+							</approvedDependencies>
 						</knownLicense>
 						<knownLicense>
 							<name>Do What the Fuck You Want to Public License</name>
@@ -600,6 +650,7 @@
 	<modules>
 		<module>commons</module>
 		<module>commons.cassandra</module>
+		<module>commons.hadoop</module>
 		<module>tracker</module>
 		<module>transformation</module>
 		<module>controller</module>

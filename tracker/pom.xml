@@ -15,6 +15,7 @@
 		<module>spi</module>
 		<module>cassandra</module>
 		<module>filesystem</module>
+		<module>hadoop</module>
 	</modules>
 
 </project>

@@ -213,7 +213,7 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		bufferedWriter.write(line);
 	    }
 	} catch (IOException e) {
-	    new TransformationException(
+	    throw new TransformationException(
 		    "Could not log migration '" + metadata + "' for machine '" + machine.getHostAddress() + "'.", e);
 	}
     }
@@ -322,8 +322,7 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		bufferedWriter.write(builder.toString());
 	    }
 	} catch (IOException e) {
-	    new TransformationException("Could not log '" + builder.toString() + "' to '" + migrationLogFilePath + "'.",
-		    e);
+	    logger.warn("Could not log '" + builder.toString() + "' to '" + migrationLogFilePath + "'.", e);
 	}
 
     }
@@ -341,6 +340,9 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		    BufferedReader reader = new BufferedReader(
 			    new InputStreamReader(inputStream, Charset.defaultCharset()))) {
 		String line = reader.readLine();
+		if (line == null) {
+		    return null;
+		}
 		String[] tokens = line.split("\t");
 		SequenceMetadata sequenceMetadata = new SequenceMetadata(tokens[1], Version.valueOf(tokens[3]),
 			new ProvidedVersionRange(Version.valueOf(tokens[4]), Version.valueOf(tokens[5])));

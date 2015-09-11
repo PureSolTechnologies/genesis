@@ -13,6 +13,7 @@
 
 	<modules>
 		<module>spi</module>
+		<module>test</module>
 		<module>cassandra</module>
 		<module>filesystem</module>
 		<module>hadoop</module>

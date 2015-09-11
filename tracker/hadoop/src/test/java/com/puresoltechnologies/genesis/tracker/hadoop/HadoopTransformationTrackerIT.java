@@ -1,4 +1,4 @@
-package com.puresoltechnologies.genesis.tracker.cassandra;
+package com.puresoltechnologies.genesis.tracker.hadoop;
 
 import static org.junit.Assert.assertTrue;
 
@@ -14,11 +14,11 @@ import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.tracker.test.AbstractTransformationTrackerTest;
 import com.puresoltechnologies.versioning.Version;
 
-public class CassandraTransformationTrackerIT extends AbstractTransformationTrackerTest {
+public class HadoopTransformationTrackerIT extends AbstractTransformationTrackerTest {
 
     @Test
     public void testTracking() throws TransformationException, UnknownHostException {
-	CassandraTransformationTracker tracker = new CassandraTransformationTracker();
+	HadoopTransformationTracker tracker = new HadoopTransformationTracker();
 	tracker.open();
 	try {
 	    Version startVersion = new Version(1, 0, 0);

@@ -20,6 +20,10 @@
 			<artifactId>tracker.spi</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>tracker.test</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.puresoltechnologies.versioning</groupId>
 			<artifactId>versioning</artifactId>
 		</dependency>

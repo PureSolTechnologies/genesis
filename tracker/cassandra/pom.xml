@@ -43,6 +43,10 @@
 			<artifactId>tracker.spi</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>tracker.test</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.puresoltechnologies.commons</groupId>
 			<artifactId>misc</artifactId>
 		</dependency>

@@ -218,7 +218,8 @@ public class HadoopTransformationTracker implements TransformationTracker {
 	}
     }
 
-    private String createLogLine(InetAddress machine, TransformationMetadata metadata) throws IOException {
+    private String createLogLine(InetAddress machine, TransformationMetadata metadata)
+	    throws IOException, TransformationException {
 	HashId hashId = HashUtilities.createHashId(metadata.getCommand());
 	StringBuilder builder = new StringBuilder();
 	SimpleDateFormat simpleDateFormat = createDateFormat();
@@ -228,11 +229,24 @@ public class HadoopTransformationTracker implements TransformationTracker {
 	builder.append("\t");
 	builder.append(machine.getHostAddress());
 	builder.append("\t");
-	builder.append(metadata.getStartVersion().toString());
+	Version startVersion = metadata.getStartVersion();
+	if (startVersion != null) {
+	    builder.append(startVersion.toString());
+	} else {
+	    throw new TransformationException("Start version of sequence '" + metadata + "' must not be null.");
+	}
 	builder.append("\t");
-	builder.append(metadata.getTargetVersion().toString());
+	Version targetVersion = metadata.getTargetVersion();
+	if (targetVersion != null) {
+	    builder.append(targetVersion.toString());
+	} else {
+	    throw new TransformationException("Target version of sequence '" + metadata + "' must not be null.");
+	}
 	builder.append("\t");
-	builder.append(metadata.getNextVersion().toString());
+	Version nextVersion = metadata.getNextVersion();
+	if (nextVersion != null) {
+	    builder.append(nextVersion.toString());
+	}
 	builder.append("\t");
 	builder.append("\"" + metadata.getCommand() + "\"");
 	builder.append("\t");
@@ -263,8 +277,13 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		String line = reader.readLine();
 		while (line != null) {
 		    String[] tokens = line.split("\t");
+		    String targetVersionString = tokens[4];
+		    Version targetVersion = Version.valueOf(targetVersionString);
+		    String nextVersionString = tokens[5];
+		    Version nextVersion = (nextVersionString != null) && (!nextVersionString.isEmpty())
+			    ? Version.valueOf(nextVersionString) : null;
 		    SequenceMetadata sequenceMetadata = new SequenceMetadata(tokens[1], Version.valueOf(tokens[3]),
-			    new ProvidedVersionRange(Version.valueOf(tokens[4]), Version.valueOf(tokens[5])));
+			    new ProvidedVersionRange(targetVersion, nextVersion));
 		    TransformationMetadata transformationMetadata = new TransformationMetadata(sequenceMetadata,
 			    tokens[7], tokens[6], tokens[9]);
 		    if (transformationMetadata.getCommand().equals("\"" + command + "\"")) {
@@ -344,8 +363,13 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		    return null;
 		}
 		String[] tokens = line.split("\t");
+		String targetVersionString = tokens[4];
+		Version targetVersion = Version.valueOf(targetVersionString);
+		String nextVersionString = tokens[5];
+		Version nextVersion = (nextVersionString != null) && (!nextVersionString.isEmpty())
+			? Version.valueOf(nextVersionString) : null;
 		SequenceMetadata sequenceMetadata = new SequenceMetadata(tokens[1], Version.valueOf(tokens[3]),
-			new ProvidedVersionRange(Version.valueOf(tokens[4]), Version.valueOf(tokens[5])));
+			new ProvidedVersionRange(targetVersion, nextVersion));
 		TransformationMetadata transformationMetadata = new TransformationMetadata(sequenceMetadata, tokens[7],
 			tokens[6], tokens[9]);
 		return transformationMetadata;

@@ -20,7 +20,7 @@ public class HadoopRemoveDirectoryStep extends AbstractHadoopTransformationStep 
 	super(sequence);
 	this.directory = directory;
 	this.recursive = recursive;
-	String command = "rmdir " + (recursive ? "-r " : "") + directory;
+	String command = "RemoveDirectory " + directory + (recursive ? " recursively" : "");
 	transformationMetadata = new TransformationMetadata(sequence.getMetadata(), developer, command, comment);
     }
 

@@ -24,9 +24,10 @@ public class HadoopTransformationTrackerIT extends AbstractTransformationTracker
 	    Version startVersion = new Version(1, 0, 0);
 	    Version targetVersion = new Version(2, 0, 0);
 	    Version nextVersion = new Version(3, 0, 0);
-	    ProvidedVersionRange providedVersionRange = new ProvidedVersionRange(targetVersion, nextVersion);
 	    String componentName = "testComponent1";
+	    ProvidedVersionRange providedVersionRange = new ProvidedVersionRange(targetVersion, nextVersion);
 	    SequenceMetadata sequenceMetadata = new SequenceMetadata(componentName, startVersion, providedVersionRange);
+
 	    String command = "command1";
 	    TransformationMetadata metadata = new TransformationMetadata(sequenceMetadata, "RRL", command, "comment1");
 
@@ -34,6 +35,15 @@ public class HadoopTransformationTrackerIT extends AbstractTransformationTracker
 	    tracker.trackMigration(machine, metadata);
 
 	    assertTrue(tracker.wasMigrated(componentName, machine, targetVersion, command));
+
+	    providedVersionRange = new ProvidedVersionRange(nextVersion, null);
+	    sequenceMetadata = new SequenceMetadata(componentName, targetVersion, providedVersionRange);
+	    command = "command2";
+	    metadata = new TransformationMetadata(sequenceMetadata, "RRL", command, "comment2");
+	    tracker.trackMigration(machine, metadata);
+
+	    assertTrue(tracker.wasMigrated(componentName, machine, nextVersion, command));
+
 	} finally {
 	    tracker.close();
 	}

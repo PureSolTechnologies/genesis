@@ -5,29 +5,34 @@ import java.util.List;
 
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 
-public abstract class AbstractTransformationSequence implements
-		TransformationSequence {
+public abstract class AbstractTransformationSequence implements TransformationSequence {
 
-	private final List<TransformationStep> transformations = new ArrayList<>();
+    private final List<TransformationStep> transformations = new ArrayList<>();
 
-	private final SequenceMetadata metadata;
+    private final SequenceMetadata metadata;
 
-	public AbstractTransformationSequence(SequenceMetadata metadata) {
-		super();
-		this.metadata = metadata;
-	}
+    public AbstractTransformationSequence(SequenceMetadata metadata) {
+	super();
+	this.metadata = metadata;
+    }
 
-	@Override
-	public final SequenceMetadata getMetadata() {
-		return metadata;
-	}
+    @Override
+    public final SequenceMetadata getMetadata() {
+	return metadata;
+    }
 
-	@Override
-	public final List<TransformationStep> getTransformations() {
-		return transformations;
-	}
+    @Override
+    public final List<TransformationStep> getTransformations() {
+	return transformations;
+    }
 
-	public void appendTransformation(TransformationStep transformation) {
-		transformations.add(transformation);
-	}
+    public void appendTransformation(TransformationStep transformation) {
+	transformations.add(transformation);
+    }
+
+    @Override
+    public String toString() {
+	return metadata.getComponentName() + " " + metadata.getStartVersion() + " -> "
+		+ metadata.getProvidedVersionRange().getMinimum();
+    }
 }

@@ -15,7 +15,7 @@
 		<cassandra.driver.version>2.1.7.1</cassandra.driver.version>
 		<titan.version>0.5.4</titan.version>
 		<hadoop.version>2.7.1</hadoop.version>
-		<hbase.version>1.1.1</hbase.version>
+		<hbase.version>1.1.2</hbase.version>
 		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
 	</properties>
 
@@ -283,7 +283,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.hadoop</groupId>
-				<artifactId>hadoop-client</artifactId>
+				<artifactId>hadoop-common</artifactId>
+				<version>${hadoop.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-hdfs</artifactId>
 				<version>${hadoop.version}</version>
 			</dependency>
 			<dependency>
@@ -293,7 +298,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.phoenix</groupId>
-				<artifactId>phoenix-server-client</artifactId>
+				<artifactId>phoenix-core</artifactId>
 				<version>${phoenix.version}</version>
 			</dependency>
 			<dependency>
@@ -356,6 +361,7 @@
 								<alias>Apache 2</alias>
 								<alias>Apache License</alias>
 								<alias>Apache License 2.0</alias>
+								<alias>Apache License Version 2</alias>
 								<alias>Apache License Version 2.0</alias>
 								<alias>Apache Software License - Version 2.0</alias>
 							</aliases>
@@ -405,10 +411,17 @@
 							<name><![CDATA[Common Development and Distribution License (CDDL-1.0)]]></name>
 							<url>http://opensource.org/licenses/CDDL-1.0</url>
 							<aliases>
+								<alias>CDDL 1.0</alias>
+								<alias><![CDATA[COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0]]></alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name><![CDATA[COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL)Version 1.1]]></name>
+							<url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</url>
+							<aliases>
 								<alias>CDDL 1.1</alias>
 								<alias>CDDL v1.1 / GPL v2 dual license</alias>
 								<alias>Dual license consisting of the CDDL v1.1 and GPL v2</alias>
-								<alias><![CDATA[COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0]]></alias>
 							</aliases>
 							<approvedDependencies>
 								<approvedDependency>javax\.activation:activation:.*</approvedDependency>
@@ -430,6 +443,8 @@
 							<aliases>
 								<alias>Eclipse License, Version 1.0</alias>
 								<alias>Eclipse Public License - Version 1.0</alias>
+								<alias>Eclipse Public License 1.0</alias>
+								<alias>Eclipse Public License v1.0</alias>
 							</aliases>
 						</knownLicense>
 						<knownLicense>
@@ -440,6 +455,7 @@
 								<alias>GNU Lesser General Public License</alias>
 								<alias>GNU Lesser General Public License, version 2.1</alias>
 								<alias>GNU Lesser General Public License (LGPL), Version 2.1</alias>
+								<alias>GNU Lesser Public License</alias>
 								<alias>LGPL 2.1</alias>
 							</aliases>
 							<approvedDependencies>

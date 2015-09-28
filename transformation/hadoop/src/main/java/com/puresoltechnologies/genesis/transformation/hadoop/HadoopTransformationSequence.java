@@ -46,11 +46,4 @@ public class HadoopTransformationSequence extends AbstractTransformationSequence
 	    fileSystem = null;
 	}
     }
-
-    @Override
-    public String toString() {
-	SequenceMetadata metadata = getMetadata();
-	return metadata.getComponentName() + " " + metadata.getStartVersion() + " -> "
-		+ metadata.getProvidedVersionRange().getMinimum();
-    }
 }

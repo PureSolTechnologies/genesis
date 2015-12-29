@@ -25,13 +25,13 @@ public class TitanTransformationSequence extends AbstractTransformationSequence 
     }
 
     private TitanGraph connect() {
-	Configuration conf = getConfigurationForCassandraBackend();
+	Configuration conf = getConfigurationForHBaseBackend();
 	return TitanFactory.open(conf);
     }
 
-    private Configuration getConfigurationForCassandraBackend() {
+    private Configuration getConfigurationForHBaseBackend() {
 	Configuration conf = new BaseConfiguration();
-	conf.setProperty("storage.backend", "cassandra");
+	conf.setProperty("storage.backend", "hbase");
 	conf.setProperty("storage.hostname", host);
 	return conf;
     }

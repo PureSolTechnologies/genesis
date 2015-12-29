@@ -17,6 +17,7 @@
 		<hadoop.version>2.7.1</hadoop.version>
 		<hbase.version>1.1.2</hbase.version>
 		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
+		<ductiledb.version>0.1.0-SNAPSHOT</ductiledb.version>
 	</properties>
 
 	<parent>
@@ -245,6 +246,11 @@
 				<version>${versioning.version}</version>
 			</dependency>
 			<!-- External Libraries -->
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>ductiledb-core</artifactId>
+				<version>${ductiledb.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -501,6 +507,13 @@
 								<alias>provided without support or warranty</alias>
 								<alias>Public domain, Sun Microsoystems</alias>
 							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>PureSol Technologies Commercial License</name>
+							<url>http://puresol-technologies.com</url>
+							<approvedDependencies>
+								<approvedDependency>com\.puresoltechnologies\..*:.*:.*</approvedDependency>
+							</approvedDependencies>
 						</knownLicense>
 						<knownLicense>
 							<name>Snaptree License</name>

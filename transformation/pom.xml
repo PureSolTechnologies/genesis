@@ -19,6 +19,7 @@
 		<module>hadoop</module>
 		<module>hbase</module>
 		<module>phoenix</module>
+		<module>ductiledb</module>
 	</modules>
 
 </project>

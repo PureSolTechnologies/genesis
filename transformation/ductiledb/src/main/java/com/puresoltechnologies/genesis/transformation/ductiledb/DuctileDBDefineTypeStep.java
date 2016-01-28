@@ -31,7 +31,15 @@ public class DuctileDBDefineTypeStep extends AbstractDuctileDBTransformationStep
     @Override
     public void transform() throws TransformationException {
 	DuctileDBSchemaManager schemaManager = getDuctileDBGraph().createSchemaManager();
-	schemaManager.defineType(elementType, typeName, propertyKeys);
+	Set<String> typeDefinition = schemaManager.getTypeDefinition(elementType, typeName);
+	if (typeDefinition == null) {
+	    schemaManager.defineType(elementType, typeName, propertyKeys);
+	} else {
+	    if (!typeDefinition.equals(propertyKeys)) {
+		throw new TransformationException("Type '" + typeName + "' was defined with '" + typeDefinition
+			+ "' already, but does not match the requested definition '" + propertyKeys + "'.");
+	    }
+	}
     }
 
 }

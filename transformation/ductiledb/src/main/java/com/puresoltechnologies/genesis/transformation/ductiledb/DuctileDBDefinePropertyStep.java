@@ -24,7 +24,17 @@ public class DuctileDBDefinePropertyStep<T extends Serializable> extends Abstrac
     public void transform() throws TransformationException {
 	DuctileDBGraph graph = getDuctileDBGraph();
 	DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
-	schemaManager.defineProperty(definition);
+	PropertyDefinition<Serializable> definedProperty = schemaManager
+		.getPropertyDefinition(definition.getElementType(), definition.getPropertyKey());
+	if (definedProperty == null) {
+	    schemaManager.defineProperty(definition);
+	} else {
+	    if (!definedProperty.equals(definition)) {
+		throw new TransformationException(
+			"Property '" + definition.getPropertyKey() + "' was defined with '" + definedProperty.toString()
+				+ "' already, but does not match the requested definition '" + definition + "'.");
+	    }
+	}
     }
 
 }

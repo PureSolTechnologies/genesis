@@ -30,7 +30,7 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
     }
 
     private DuctileDBGraph connect() throws IOException {
-	Configuration configuration = DuctileDBGraphFactory.createConfiguration();
+	Configuration configuration = DuctileDBGraphFactory.createDefaultConfiguration();
 	return DuctileDBGraphFactory.createGraph(configuration);
     }
 

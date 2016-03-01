@@ -2,8 +2,7 @@ package com.puresoltechnologies.genesis.transformation.ductiledb;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
-
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
@@ -24,14 +23,13 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
     public final void open() {
 	try {
 	    ductileDBGraph = connect();
-	} catch (IOException e) {
+	} catch (IOException | ServiceException e) {
 	    throw new RuntimeException("Could not open DuctileDB.", e);
 	}
     }
 
-    private DuctileDBGraph connect() throws IOException {
-	Configuration configuration = DuctileDBGraphFactory.createDefaultConfiguration();
-	return DuctileDBGraphFactory.createGraph(configuration);
+    private DuctileDBGraph connect() throws IOException, ServiceException {
+	return DuctileDBGraphFactory.createGraph("localhost", 2181, "localhost", 60000);
     }
 
     @Override

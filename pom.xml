@@ -17,7 +17,7 @@
 		<hadoop.version>2.7.1</hadoop.version>
 		<hbase.version>1.1.2</hbase.version>
 		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
-		<ductiledb.version>0.1.0-SNAPSHOT</ductiledb.version>
+		<ductiledb.version>0.1.1</ductiledb.version>
 	</properties>
 
 	<parent>

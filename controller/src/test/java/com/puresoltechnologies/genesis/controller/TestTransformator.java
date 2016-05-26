@@ -1,5 +1,6 @@
 package com.puresoltechnologies.genesis.controller;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -8,43 +9,47 @@ import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence
 
 public class TestTransformator implements ComponentTransformator {
 
-	private final String componentName;
-	private final boolean hostBased;
-	private final Set<TransformationSequence> sequences = new LinkedHashSet<>();
+    private final String componentName;
+    private final boolean hostBased;
+    private final Set<TransformationSequence> sequences = new LinkedHashSet<>();
 
-	public TestTransformator(String componentName, boolean hostBased) {
-		super();
-		this.componentName = componentName;
-		this.hostBased = hostBased;
-	}
+    public TestTransformator(String componentName, boolean hostBased) {
+	super();
+	this.componentName = componentName;
+	this.hostBased = hostBased;
+    }
 
-	@Override
-	public String getComponentName() {
-		return componentName;
-	}
+    @Override
+    public String getComponentName() {
+	return componentName;
+    }
 
-	@Override
-	public boolean isHostBased() {
-		return hostBased;
-	}
+    @Override
+    public Set<String> getDependencies() {
+	return Collections.emptySet();
+    }
 
-	public void addSequence(TransformationSequence sequence) {
-		sequences.add(sequence);
-	}
+    @Override
+    public boolean isHostBased() {
+	return hostBased;
+    }
 
-	@Override
-	public Set<TransformationSequence> getSequences() {
-		return sequences;
-	}
+    public void addSequence(TransformationSequence sequence) {
+	sequences.add(sequence);
+    }
 
-	@Override
-	public String toString() {
-		return "ComponentTransformator for '" + componentName + "' ("
-				+ (hostBased ? "" : "not ") + "host based)";
-	}
+    @Override
+    public Set<TransformationSequence> getSequences() {
+	return sequences;
+    }
 
-	@Override
-	public void dropAll() {
-		// intentionally left empty
-	}
+    @Override
+    public String toString() {
+	return "ComponentTransformator for '" + componentName + "' (" + (hostBased ? "" : "not ") + "host based)";
+    }
+
+    @Override
+    public void dropAll() {
+	// intentionally left empty
+    }
 }

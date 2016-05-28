@@ -5,9 +5,11 @@ import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,15 +65,29 @@ public class GenesisController implements AutoCloseable {
 	    runDropAll();
 	}
 	if (migrate) {
-	    runTransform();
+	    migrate();
 	}
     }
 
-    public static boolean runTransform() {
-	return runTransform(null);
+    /**
+     * This method runs the transformation to the last version-
+     * 
+     * @return <code>true</code> is returned in case of a successful migration.
+     *         <code>false</code> is returned otherwise.
+     */
+    public static boolean migrate() {
+	return migrate(null);
     }
 
-    public static boolean runTransform(Version targetVersion) {
+    /**
+     * Runs the migration to a specified version.
+     * 
+     * @param targetVersion
+     *            is the version to which the migration is to run to.
+     * @return <code>true</code> is returned in case of a successful migration.
+     *         <code>false</code> is returned otherwise.
+     */
+    public static boolean migrate(Version targetVersion) {
 	printRunHeader("MIGRATE");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
@@ -180,6 +196,7 @@ public class GenesisController implements AutoCloseable {
 	tracker.open();
 	try {
 	    List<ComponentTransformator> allTransformators = new ArrayList<>(Transformators.getAll());
+	    sortTransformatorsByDependencies(allTransformators);
 	    logInfo("The following component transformators will be run in order:");
 	    for (int i = 0; i < allTransformators.size(); ++i) {
 		ComponentTransformator transformator = allTransformators.get(i);
@@ -191,6 +208,29 @@ public class GenesisController implements AutoCloseable {
 	} finally {
 	    tracker.close();
 	}
+    }
+
+    static void sortTransformatorsByDependencies(List<ComponentTransformator> allTransformators) {
+	Set<String> usedDependencies = new HashSet<>();
+	List<ComponentTransformator> sortedTransformators = new ArrayList<>();
+	while (allTransformators.size() > 0) {
+	    int lastLength = sortedTransformators.size();
+	    Iterator<ComponentTransformator> transformatorIterator = allTransformators.iterator();
+	    while (transformatorIterator.hasNext()) {
+		ComponentTransformator transformator = transformatorIterator.next();
+		if (usedDependencies.containsAll(transformator.getDependencies())) {
+		    usedDependencies.add(transformator.getComponentName());
+		    sortedTransformators.add(transformator);
+		    transformatorIterator.remove();
+		    break;
+		}
+	    }
+	    if (lastLength == sortedTransformators.size()) {
+		throw new IllegalStateException("Dependencies for some transformators cannot be satisfied.");
+	    }
+	}
+	allTransformators.clear();
+	allTransformators.addAll(sortedTransformators);
     }
 
     private void runTransformator(ComponentTransformator transformator, Version targetVersion)

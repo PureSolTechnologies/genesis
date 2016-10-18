@@ -379,6 +379,10 @@ public class GenesisController implements AutoCloseable {
     }
 
     private void log(Severity severity, String message, Throwable cause) {
-	tracker.log(new Date(), severity, machine, Thread.currentThread(), message, cause);
+	try {
+	    tracker.log(new Date(), severity, machine, Thread.currentThread(), message, cause);
+	} catch (TransformationException e) {
+	    logger.error("Could not log.", e);
+	}
     }
 }

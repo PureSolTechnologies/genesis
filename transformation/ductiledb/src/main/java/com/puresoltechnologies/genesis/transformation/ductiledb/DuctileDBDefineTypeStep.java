@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.ElementType;
-import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.core.graph.ElementType;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 
 public class DuctileDBDefineTypeStep extends AbstractDuctileDBTransformationStep {

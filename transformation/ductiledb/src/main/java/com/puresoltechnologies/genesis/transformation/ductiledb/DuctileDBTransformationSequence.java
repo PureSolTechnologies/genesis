@@ -2,15 +2,16 @@ package com.puresoltechnologies.genesis.transformation.ductiledb;
 
 import java.io.IOException;
 
-import com.google.protobuf.ServiceException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDB;
+import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.transformation.spi.AbstractTransformationSequence;
 
 public class DuctileDBTransformationSequence extends AbstractTransformationSequence {
 
-    private DuctileDBGraph ductileDBGraph;
+    private DuctileDB ductileDB;
+    private GraphStore ductileDBGraph;
 
     private final String host;
 
@@ -22,14 +23,16 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
     @Override
     public final void open() {
 	try {
-	    ductileDBGraph = connect();
-	} catch (IOException | ServiceException e) {
+	    ductileDB = connect();
+	    ductileDBGraph = ductileDB.getGraph();
+	} catch (IOException e) {
 	    throw new RuntimeException("Could not open DuctileDB.", e);
 	}
     }
 
-    private DuctileDBGraph connect() throws IOException, ServiceException {
-	return DuctileDBGraphFactory.createGraph("localhost", 2181, "localhost", 60000);
+    private DuctileDB connect() throws IOException {
+	DuctileDBBootstrap.start(configuration);
+	return DuctileDBBootstrap.getInstance();
     }
 
     @Override
@@ -47,7 +50,7 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
 	return host;
     }
 
-    protected final DuctileDBGraph getDuctileDBGraph() {
+    protected final GraphStore getDuctileDBGraph() {
 	return ductileDBGraph;
     }
 }

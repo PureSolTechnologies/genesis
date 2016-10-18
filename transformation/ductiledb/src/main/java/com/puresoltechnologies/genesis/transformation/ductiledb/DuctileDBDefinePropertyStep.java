@@ -2,11 +2,11 @@ package com.puresoltechnologies.genesis.transformation.ductiledb;
 
 import java.io.Serializable;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.ElementType;
-import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
-import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
+import com.puresoltechnologies.ductiledb.core.graph.ElementType;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.core.graph.schema.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.core.graph.schema.UniqueConstraint;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 
 public class DuctileDBDefinePropertyStep<T extends Serializable> extends AbstractDuctileDBTransformationStep {
@@ -22,7 +22,7 @@ public class DuctileDBDefinePropertyStep<T extends Serializable> extends Abstrac
 
     @Override
     public void transform() throws TransformationException {
-	DuctileDBGraph graph = getDuctileDBGraph();
+	GraphStore graph = getDuctileDBGraph();
 	DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
 	PropertyDefinition<Serializable> definedProperty = schemaManager
 		.getPropertyDefinition(definition.getElementType(), definition.getPropertyKey());

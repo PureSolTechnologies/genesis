@@ -8,7 +8,7 @@
 	<properties>
 		<officalName>Genesis</officalName>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<commons.version>0.6.0</commons.version>
+		<commons.version>0.7.0-SNAPSHOT</commons.version>
 		<versioning.version>1.1.0</versioning.version>
 		<graphs.version>0.6.0</graphs.version>
 		<cassandra.driver.version>2.1.7.1</cassandra.driver.version>
@@ -16,7 +16,7 @@
 		<hadoop.version>2.7.1</hadoop.version>
 		<hbase.version>1.1.2</hbase.version>
 		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
-		<ductiledb.version>0.1.1</ductiledb.version>
+		<ductiledb.version>0.2.0-SNAPSHOT</ductiledb.version>
 	</properties>
 
 	<parent>
@@ -194,6 +194,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.genesis</groupId>
+				<artifactId>commons.ductiledb</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>commons.hadoop</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -247,7 +252,7 @@
 			<!-- External Libraries -->
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>ductiledb-core</artifactId>
+				<artifactId>core</artifactId>
 				<version>${ductiledb.version}</version>
 			</dependency>
 			<dependency>
@@ -691,6 +696,7 @@
 		<module>commons</module>
 		<module>commons.cassandra</module>
 		<module>commons.hadoop</module>
+		<module>commons.ductiledb</module>
 		<module>tracker</module>
 		<module>transformation</module>
 		<module>controller</module>

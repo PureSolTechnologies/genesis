@@ -1,6 +1,6 @@
 package com.puresoltechnologies.genesis.tracker.test;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.controller.GenesisController;
@@ -21,9 +21,8 @@ public class AbstractTransformationTrackerTest {
      * @throws InvalidSequenceException
      *             if sequences is invalid.
      */
-    @BeforeClass
-    public static void testSPILoading()
-	    throws NoTrackerFoundException, TransformationException, InvalidSequenceException {
+    @Before
+    public void testSPILoading() throws NoTrackerFoundException, TransformationException, InvalidSequenceException {
 	try (GenesisController controller = new GenesisController()) {
 	    controller.transform();
 	}

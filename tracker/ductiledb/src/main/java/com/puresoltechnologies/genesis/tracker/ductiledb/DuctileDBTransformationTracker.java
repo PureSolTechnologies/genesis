@@ -3,11 +3,9 @@ package com.puresoltechnologies.genesis.tracker.ductiledb;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.URL;
+import java.time.Instant;
 import java.util.Date;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +43,9 @@ import com.puresoltechnologies.versioning.Version;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileTransformationTracker implements TransformationTracker {
+public class DuctileDBTransformationTracker implements TransformationTracker {
 
-    private static final Logger logger = LoggerFactory.getLogger(DuctileTransformationTracker.class);
+    private static final Logger logger = LoggerFactory.getLogger(DuctileDBTransformationTracker.class);
 
     public static final String NAMESPACE_NAME = "genesis";
 
@@ -74,17 +72,7 @@ public class DuctileTransformationTracker implements TransformationTracker {
     }
 
     private void loadConfiguration() {
-	URL configuration = getClass().getResource("/genesis.tracker.ductiledb.properties");
-	if (configuration != null) {
-	    try (InputStream stream = configuration.openStream()) {
-		Properties properties = new Properties();
-		properties.load(stream);
-		configFile = new File(properties.getProperty("genesis.tracker.ductiledb.configfile"));
-	    } catch (IOException e) {
-		System.err.println(
-			"Warning: A configuration file for DuctileDB Tracker was found, but could not be opened.");
-	    }
-	}
+	configFile = new File(System.getProperty("genesis.tracker.ductiledb.config"));
     }
 
     private void connect() throws TransformationException {
@@ -301,8 +289,8 @@ public class DuctileTransformationTracker implements TransformationTracker {
     }
 
     @Override
-    public void log(Date time, Severity severity, InetAddress machine, Thread thread, String message, Throwable cause)
-	    throws TransformationException {
+    public void log(Instant time, Severity severity, InetAddress machine, Thread thread, String message,
+	    Throwable cause) throws TransformationException {
 	try {
 	    if (preparedLoggingStatement == null) {
 		createPreparedStatements();

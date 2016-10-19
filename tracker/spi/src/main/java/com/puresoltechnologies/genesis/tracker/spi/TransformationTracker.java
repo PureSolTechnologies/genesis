@@ -1,7 +1,7 @@
 package com.puresoltechnologies.genesis.tracker.spi;
 
 import java.net.InetAddress;
-import java.util.Date;
+import java.time.Instant;
 
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
@@ -101,7 +101,7 @@ public interface TransformationTracker extends AutoCloseable {
      *            be logged.
      * @throws TransformationException
      */
-    public void log(Date time, Severity severity, InetAddress host, Thread thread, String message, Throwable cause)
+    public void log(Instant time, Severity severity, InetAddress host, Thread thread, String message, Throwable cause)
 	    throws TransformationException;
 
     /**

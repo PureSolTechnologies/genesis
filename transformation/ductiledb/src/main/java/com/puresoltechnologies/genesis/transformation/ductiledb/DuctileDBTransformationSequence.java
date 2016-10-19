@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
+import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.transformation.spi.AbstractTransformationSequence;
@@ -12,12 +13,11 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
 
     private DuctileDB ductileDB;
     private GraphStore ductileDBGraph;
+    private final DuctileDBConfiguration configuration;
 
-    private final String host;
-
-    public DuctileDBTransformationSequence(String host, SequenceMetadata metadata) {
+    public DuctileDBTransformationSequence(DuctileDBConfiguration configuration, SequenceMetadata metadata) {
 	super(metadata);
-	this.host = host;
+	this.configuration = configuration;
     }
 
     @Override
@@ -44,10 +44,6 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
 	} finally {
 	    ductileDBGraph = null;
 	}
-    }
-
-    public final String getHost() {
-	return host;
     }
 
     protected final GraphStore getDuctileDBGraph() {

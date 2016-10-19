@@ -29,8 +29,16 @@
 			<artifactId>tracker.test</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>storage.os</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.puresoltechnologies.versioning</groupId>
 			<artifactId>versioning</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 	</dependencies>
 

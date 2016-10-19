@@ -3,8 +3,8 @@ package com.puresoltechnologies.genesis.controller;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -380,7 +380,7 @@ public class GenesisController implements AutoCloseable {
 
     private void log(Severity severity, String message, Throwable cause) {
 	try {
-	    tracker.log(new Date(), severity, machine, Thread.currentThread(), message, cause);
+	    tracker.log(Instant.now(), severity, machine, Thread.currentThread(), message, cause);
 	} catch (TransformationException e) {
 	    logger.error("Could not log.", e);
 	}

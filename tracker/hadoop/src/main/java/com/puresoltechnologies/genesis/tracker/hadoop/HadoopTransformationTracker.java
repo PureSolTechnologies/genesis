@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 
 import org.apache.hadoop.conf.Configuration;
@@ -312,7 +313,8 @@ public class HadoopTransformationTracker implements TransformationTracker {
     }
 
     @Override
-    public void log(Date time, Severity severity, InetAddress machine, Thread thread, String message, Throwable cause) {
+    public void log(Instant time, Severity severity, InetAddress machine, Thread thread, String message,
+	    Throwable cause) {
 	SimpleDateFormat dateFormat = createDateFormat();
 	StringBuilder builder = new StringBuilder();
 	builder.append(dateFormat.format(time));

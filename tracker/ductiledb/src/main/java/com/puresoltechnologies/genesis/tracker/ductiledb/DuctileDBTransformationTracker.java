@@ -87,12 +87,12 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 
     private void prepareKeyspace() throws TransformationException {
 	try {
-	    com.puresoltechnologies.ductiledb.core.tables.TableStore tableStore = ductileDB.getTableStore();
+	    TableStore tableStore = ductileDB.getTableStore();
 	    DataDefinitionLanguage dataDefinitionLanguage = tableStore.getDataDefinitionLanguage();
 	    if (dataDefinitionLanguage.getNamespace(NAMESPACE_NAME) == null) {
 		logger.info("Keyspace for Cassandra migration is missing. Needs to be created...");
 		CreateNamespace createNamespace = dataDefinitionLanguage.createCreateNamespace(NAMESPACE_NAME);
-		createNamespace.execute();
+		createNamespace.execute(tableStore);
 		if (dataDefinitionLanguage.getNamespace(NAMESPACE_NAME) == null) {
 		    throw new TransformationException("Could not create namespace '" + NAMESPACE_NAME + "'.");
 		}
@@ -238,18 +238,19 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	}
 	try {
 	    // Tracking...
+	    TableStore tableStore = ductileDB.getTableStore();
 	    HashId hashId = HashUtilities.createHashId(metadata.getCommand());
 	    BoundStatement boundStatement = preparedInsertStatement.bind(new Date(), metadata.getComponentName(),
 		    machine.getHostAddress(), metadata.getTargetVersion().toString(), metadata.getCommand(),
 		    metadata.getDeveloper(), metadata.getComment(), hashId.toString());
-	    boundStatement.execute();
+	    boundStatement.execute(tableStore);
 	    // Last Transformations...
 	    String nextVersionString = metadata.getNextVersion() != null ? metadata.getNextVersion().toString() : "";
 	    boundStatement = preparedInsertLastTransformationStatement.bind(new Date(), metadata.getComponentName(),
 		    machine.getHostAddress(), metadata.getStartVersion().toString(),
 		    metadata.getTargetVersion().toString(), nextVersionString, metadata.getCommand(),
 		    metadata.getDeveloper(), metadata.getComment(), hashId.toString());
-	    boundStatement.execute();
+	    boundStatement.execute(tableStore);
 	} catch (IOException | ExecutionException e) {
 	    throw new TransformationException("Could not track migration step.", e);
 	}
@@ -262,10 +263,11 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	    if (preparedSelectStatement == null) {
 		createPreparedStatements();
 	    }
+	    TableStore tableStore = ductileDB.getTableStore();
 	    BoundStatement boundStatement = preparedSelectStatement.bind(component, machine.getHostAddress(),
 		    version.toString(), command);
 	    TableRowIterable result;
-	    result = boundStatement.execute();
+	    result = boundStatement.execute(tableStore);
 	    return result.iterator().hasNext();
 	} catch (ExecutionException e) {
 	    throw new TransformationException("Could not check whether a migration took place.", e);
@@ -279,10 +281,11 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 		    || (preparedDropComponentLastTransformtaionStatement == null)) {
 		createPreparedStatements();
 	    }
+	    TableStore tableStore = ductileDB.getTableStore();
 	    BoundStatement boundStatement = preparedDropComponentStatement.bind(component, machine.getHostAddress());
-	    boundStatement.execute();
+	    boundStatement.execute(tableStore);
 	    boundStatement = preparedDropComponentLastTransformtaionStatement.bind(component, machine.getHostAddress());
-	    boundStatement.execute();
+	    boundStatement.execute(tableStore);
 	} catch (ExecutionException e) {
 	    throw new TransformationException("Could not drop component history.", e);
 	}
@@ -295,15 +298,16 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	    if (preparedLoggingStatement == null) {
 		createPreparedStatements();
 	    }
+	    TableStore tableStore = ductileDB.getTableStore();
 	    if (cause == null) {
 		BoundStatement boundStatement = preparedLoggingStatement.bind(time, severity.name(),
 			machine.getHostAddress().toString(), thread.getName(), message, "", "", "");
-		boundStatement.execute();
+		boundStatement.execute(tableStore);
 	    } else {
 		BoundStatement boundStatement = preparedLoggingStatement.bind(time, severity.name(),
 			machine.getHostAddress().toString(), thread.getName(), message, cause.getClass().getName(),
 			cause.getMessage(), cause.toString());
-		boundStatement.execute();
+		boundStatement.execute(tableStore);
 	    }
 	} catch (ExecutionException e) {
 	    throw new TransformationException("Could not log migration.", e);
@@ -316,9 +320,10 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	if (preparedSelectLastTransformationStatement == null) {
 	    createPreparedStatements();
 	}
+	TableStore tableStore = ductileDB.getTableStore();
 	BoundStatement boundStatement = preparedSelectLastTransformationStatement.bind(component,
 		machine.getHostAddress());
-	try (TableRowIterable resultSet = boundStatement.execute()) {
+	try (TableRowIterable resultSet = boundStatement.execute(tableStore)) {
 	    TableRow next = resultSet.iterator().next();
 	    if (next == null) {
 		return null;

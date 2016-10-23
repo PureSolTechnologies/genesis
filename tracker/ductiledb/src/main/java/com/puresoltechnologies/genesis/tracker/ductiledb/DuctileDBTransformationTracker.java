@@ -100,16 +100,17 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	    }
 	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, CHANGELOG_TABLE) == null) {
 		logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
-		CreateTable createTable = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, CHANGELOG_TABLE);
-		createTable.addColumn("changelog", "time", ColumnType.DATETIME);
-		createTable.addColumn("changelog", "component", ColumnType.VARCHAR);
-		createTable.addColumn("changelog", "machine", ColumnType.VARCHAR);
-		createTable.addColumn("changelog", "version", ColumnType.VARCHAR);
-		createTable.addColumn("changelog", "command", ColumnType.VARCHAR);
-		createTable.addColumn("changelog", "developer", ColumnType.VARCHAR);
-		createTable.addColumn("changelog", "comment", ColumnType.VARCHAR);
-		createTable.addColumn("changelog", "hashid", ColumnType.VARCHAR);
-		createTable.setPrimaryKey("component", "machine", "version", "command");
+		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, CHANGELOG_TABLE);
+		table.addColumn("changelog", "time", ColumnType.DATETIME);
+		table.addColumn("changelog", "component", ColumnType.VARCHAR);
+		table.addColumn("changelog", "machine", ColumnType.VARCHAR);
+		table.addColumn("changelog", "version", ColumnType.VARCHAR);
+		table.addColumn("changelog", "command", ColumnType.VARCHAR);
+		table.addColumn("changelog", "developer", ColumnType.VARCHAR);
+		table.addColumn("changelog", "comment", ColumnType.VARCHAR);
+		table.addColumn("changelog", "hashid", ColumnType.VARCHAR);
+		table.setPrimaryKey("component", "machine", "version", "command");
+		table.execute(tableStore);
 		logger.info("ChangeLog table for Cassandra migration created.");
 	    }
 	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, MIGRATIONLOG_TABLE) == null) {
@@ -124,6 +125,7 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 		table.addColumn("migrationlog", "exception_message", ColumnType.VARCHAR);
 		table.addColumn("migrationlog", "stacktrace", ColumnType.VARCHAR);
 		table.setPrimaryKey("time", "machine", "thread", "message");
+		table.execute(tableStore);
 		logger.info("MigrationLog table for Cassandra migration created.");
 	    }
 	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE) == null) {
@@ -141,6 +143,7 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 		table.addColumn("transformations", "comment", ColumnType.VARCHAR);
 		table.addColumn("transformations", "hashid", ColumnType.VARCHAR);
 		table.setPrimaryKey("component", "machine");
+		table.execute(tableStore);
 		logger.info("LastTransformations table for Cassandra migration created.");
 	    }
 	} catch (ExecutionException e) {

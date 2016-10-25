@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Instant;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dml.BoundStatement;
 import com.puresoltechnologies.ductiledb.core.tables.dml.CompareOperator;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
+import com.puresoltechnologies.ductiledb.core.tables.dml.Placeholder;
 import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedDelete;
 import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedInsert;
 import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedSelect;
@@ -101,7 +101,7 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, CHANGELOG_TABLE) == null) {
 		logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
 		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, CHANGELOG_TABLE);
-		table.addColumn("changelog", "time", ColumnType.DATETIME);
+		table.addColumn("changelog", "time", ColumnType.TIMESTAMP);
 		table.addColumn("changelog", "component", ColumnType.VARCHAR);
 		table.addColumn("changelog", "machine", ColumnType.VARCHAR);
 		table.addColumn("changelog", "version", ColumnType.VARCHAR);
@@ -116,7 +116,7 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, MIGRATIONLOG_TABLE) == null) {
 		logger.info("MigrationLog table for Cassandra migration is missing. Needs to be created...");
 		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, MIGRATIONLOG_TABLE);
-		table.addColumn("migrationlog", "time", ColumnType.DATETIME);
+		table.addColumn("migrationlog", "time", ColumnType.TIMESTAMP);
 		table.addColumn("migrationlog", "severity", ColumnType.VARCHAR);
 		table.addColumn("migrationlog", "machine", ColumnType.VARCHAR);
 		table.addColumn("migrationlog", "thread", ColumnType.VARCHAR);
@@ -132,7 +132,7 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 		logger.info("LastTransformations table for Cassandra migration is missing. Needs to be created...");
 		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME,
 			LAST_TRANSFORMATIONS_TABLE);
-		table.addColumn("transformations", "time", ColumnType.DATETIME);
+		table.addColumn("transformations", "time", ColumnType.TIMESTAMP);
 		table.addColumn("transformations", "component", ColumnType.VARCHAR);
 		table.addColumn("transformations", "machine", ColumnType.VARCHAR);
 		table.addColumn("transformations", "start_version", ColumnType.VARCHAR);
@@ -156,14 +156,14 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 	if (preparedInsertStatement == null) {
 	    preparedInsertStatement = dml.prepareInsert(NAMESPACE_NAME, CHANGELOG_TABLE);
-	    preparedInsertStatement.addPlaceholder("changelog", "time", 1);
-	    preparedInsertStatement.addPlaceholder("changelog", "component", 2);
-	    preparedInsertStatement.addPlaceholder("changelog", "machine", 3);
-	    preparedInsertStatement.addPlaceholder("changelog", "version", 4);
-	    preparedInsertStatement.addPlaceholder("changelog", "command", 5);
-	    preparedInsertStatement.addPlaceholder("changelog", "developer", 6);
-	    preparedInsertStatement.addPlaceholder("changelog", "comment", 7);
-	    preparedInsertStatement.addPlaceholder("changelog", "hashid", 8);
+	    preparedInsertStatement.addPlaceholder(new Placeholder(1, "changelog", "time"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(2, "changelog", "component"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(3, "changelog", "machine"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(4, "changelog", "version"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(5, "changelog", "command"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(6, "changelog", "developer"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(7, "changelog", "comment"));
+	    preparedInsertStatement.addPlaceholder(new Placeholder(8, "changelog", "hashid"));
 	}
 	if (preparedSelectStatement == null) {
 	    preparedSelectStatement = dml.prepareSelect(NAMESPACE_NAME, CHANGELOG_TABLE);
@@ -179,27 +179,32 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	}
 	if (preparedLoggingStatement == null) {
 	    preparedLoggingStatement = dml.prepareInsert(NAMESPACE_NAME, MIGRATIONLOG_TABLE);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "time", 1);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "severity", 2);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "machine", 3);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "thread", 4);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "message", 5);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "exception_type", 6);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "exception_message", 7);
-	    preparedLoggingStatement.addPlaceholder("migrationlog", "stacktrace", 8);
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(1, "migrationlog", "time"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(2, "migrationlog", "severity"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(3, "migrationlog", "machine"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(4, "migrationlog", "thread"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(5, "migrationlog", "message"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(6, "migrationlog", "exception_type"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(7, "migrationlog", "exception_message"));
+	    preparedLoggingStatement.addPlaceholder(new Placeholder(8, "migrationlog", "stacktrace"));
 	}
 	if (preparedInsertLastTransformationStatement == null) {
 	    preparedInsertLastTransformationStatement = dml.prepareInsert(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "time", 1);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "component", 2);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "machine", 3);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "start_version", 4);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "target_version", 5);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "next_version", 6);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "command", 7);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "developer", 8);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "commend", 9);
-	    preparedInsertLastTransformationStatement.addPlaceholder("transformations", "hashid", 10);
+	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(1, "transformations", "time"));
+	    preparedInsertLastTransformationStatement
+		    .addPlaceholder(new Placeholder(2, "transformations", "component"));
+	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(3, "transformations", "machine"));
+	    preparedInsertLastTransformationStatement
+		    .addPlaceholder(new Placeholder(4, "transformations", "start_version"));
+	    preparedInsertLastTransformationStatement
+		    .addPlaceholder(new Placeholder(5, "transformations", "target_version"));
+	    preparedInsertLastTransformationStatement
+		    .addPlaceholder(new Placeholder(6, "transformations", "next_version"));
+	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(7, "transformations", "command"));
+	    preparedInsertLastTransformationStatement
+		    .addPlaceholder(new Placeholder(8, "transformations", "developer"));
+	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(9, "transformations", "commend"));
+	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(10, "transformations", "hashid"));
 	}
 	if (preparedSelectLastTransformationStatement == null) {
 	    preparedSelectLastTransformationStatement = dml.prepareSelect(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE);
@@ -243,13 +248,13 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	    // Tracking...
 	    TableStore tableStore = ductileDB.getTableStore();
 	    HashId hashId = HashUtilities.createHashId(metadata.getCommand());
-	    BoundStatement boundStatement = preparedInsertStatement.bind(new Date(), metadata.getComponentName(),
+	    BoundStatement boundStatement = preparedInsertStatement.bind(Instant.now(), metadata.getComponentName(),
 		    machine.getHostAddress(), metadata.getTargetVersion().toString(), metadata.getCommand(),
 		    metadata.getDeveloper(), metadata.getComment(), hashId.toString());
 	    boundStatement.execute(tableStore);
 	    // Last Transformations...
 	    String nextVersionString = metadata.getNextVersion() != null ? metadata.getNextVersion().toString() : "";
-	    boundStatement = preparedInsertLastTransformationStatement.bind(new Date(), metadata.getComponentName(),
+	    boundStatement = preparedInsertLastTransformationStatement.bind(Instant.now(), metadata.getComponentName(),
 		    machine.getHostAddress(), metadata.getStartVersion().toString(),
 		    metadata.getTargetVersion().toString(), nextVersionString, metadata.getCommand(),
 		    metadata.getDeveloper(), metadata.getComment(), hashId.toString());

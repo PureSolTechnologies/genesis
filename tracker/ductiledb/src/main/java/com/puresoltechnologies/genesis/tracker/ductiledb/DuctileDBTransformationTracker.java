@@ -9,28 +9,11 @@ import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.commons.misc.hash.HashId;
-import com.puresoltechnologies.commons.misc.hash.HashUtilities;
 import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
 import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
-import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
-import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
-import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateNamespace;
-import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
-import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.core.tables.dml.BoundStatement;
-import com.puresoltechnologies.ductiledb.core.tables.dml.CompareOperator;
-import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.core.tables.dml.Placeholder;
-import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedDelete;
-import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedInsert;
-import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedSelect;
-import com.puresoltechnologies.ductiledb.core.tables.dml.TableRow;
-import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
-import com.puresoltechnologies.genesis.commons.ProvidedVersionRange;
-import com.puresoltechnologies.genesis.commons.SequenceMetadata;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.engine.Namespace;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 import com.puresoltechnologies.genesis.tracker.spi.Severity;
@@ -39,7 +22,7 @@ import com.puresoltechnologies.versioning.Version;
 
 /**
  * This is the default migration tracker for Purifinity which puts everything
- * into Cassandra.
+ * into DuctileDB.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -53,14 +36,6 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
     public static final String MIGRATIONLOG_TABLE = "migrationlog";
     public static final String LAST_TRANSFORMATIONS_TABLE = "last_transformations";
 
-    private PreparedInsert preparedInsertStatement = null;
-    private PreparedSelect preparedSelectStatement = null;
-    private PreparedDelete preparedDropComponentStatement = null;
-    private PreparedInsert preparedLoggingStatement = null;
-    private PreparedInsert preparedInsertLastTransformationStatement = null;
-    private PreparedSelect preparedSelectLastTransformationStatement = null;
-    private PreparedDelete preparedDropComponentLastTransformtaionStatement = null;
-
     private File configFile = null;
     private DuctileDB ductileDB;
 
@@ -68,7 +43,11 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
     public void open() throws TransformationException {
 	loadConfiguration();
 	connect();
-	prepareKeyspace();
+	try {
+	    prepareKeyspace();
+	} catch (IOException e) {
+	    throw new TransformationException("Could not prepare Keyspace.", e);
+	}
     }
 
     private void loadConfiguration() {
@@ -85,155 +64,34 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 	}
     }
 
-    private void prepareKeyspace() throws TransformationException {
-	try {
-	    TableStore tableStore = ductileDB.getTableStore();
-	    DataDefinitionLanguage dataDefinitionLanguage = tableStore.getDataDefinitionLanguage();
-	    if (dataDefinitionLanguage.getNamespace(NAMESPACE_NAME) == null) {
-		logger.info("Keyspace for Cassandra migration is missing. Needs to be created...");
-		CreateNamespace createNamespace = dataDefinitionLanguage.createCreateNamespace(NAMESPACE_NAME);
-		createNamespace.execute();
-		if (dataDefinitionLanguage.getNamespace(NAMESPACE_NAME) == null) {
-		    throw new TransformationException("Could not create namespace '" + NAMESPACE_NAME + "'.");
-		}
-		logger.info("Namespace for DuctileDB migration tracker created.");
-	    }
-	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, CHANGELOG_TABLE) == null) {
-		logger.info("ChangeLog table for Cassandra migration is missing. Needs to be created...");
-		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, CHANGELOG_TABLE,
-			"Contains the changelog of Genesis.");
-		table.addColumn("changelog", "time", ColumnType.TIMESTAMP);
-		table.addColumn("changelog", "component", ColumnType.VARCHAR);
-		table.addColumn("changelog", "machine", ColumnType.VARCHAR);
-		table.addColumn("changelog", "version", ColumnType.VARCHAR);
-		table.addColumn("changelog", "command", ColumnType.VARCHAR);
-		table.addColumn("changelog", "developer", ColumnType.VARCHAR);
-		table.addColumn("changelog", "comment", ColumnType.VARCHAR);
-		table.addColumn("changelog", "hashid", ColumnType.VARCHAR);
-		table.setPrimaryKey("component", "machine", "version", "command");
-		table.execute();
-		logger.info("ChangeLog table for Cassandra migration created.");
-	    }
-	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, MIGRATIONLOG_TABLE) == null) {
-		logger.info("MigrationLog table for Cassandra migration is missing. Needs to be created...");
-		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, MIGRATIONLOG_TABLE,
-			"Contains the migration log of Genesis which is a collection of the logs of the steps.");
-		table.addColumn("migrationlog", "time", ColumnType.TIMESTAMP);
-		table.addColumn("migrationlog", "severity", ColumnType.VARCHAR);
-		table.addColumn("migrationlog", "machine", ColumnType.VARCHAR);
-		table.addColumn("migrationlog", "thread", ColumnType.VARCHAR);
-		table.addColumn("migrationlog", "message", ColumnType.VARCHAR);
-		table.addColumn("migrationlog", "exception_type", ColumnType.VARCHAR);
-		table.addColumn("migrationlog", "exception_message", ColumnType.VARCHAR);
-		table.addColumn("migrationlog", "stacktrace", ColumnType.VARCHAR);
-		table.setPrimaryKey("time", "machine", "thread", "message");
-		table.execute();
-		logger.info("MigrationLog table for Cassandra migration created.");
-	    }
-	    if (dataDefinitionLanguage.getTable(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE) == null) {
-		logger.info("LastTransformations table for Cassandra migration is missing. Needs to be created...");
-		CreateTable table = dataDefinitionLanguage.createCreateTable(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE,
-			"Contains the last transformation of Genesis.");
-		table.addColumn("transformations", "time", ColumnType.TIMESTAMP);
-		table.addColumn("transformations", "component", ColumnType.VARCHAR);
-		table.addColumn("transformations", "machine", ColumnType.VARCHAR);
-		table.addColumn("transformations", "start_version", ColumnType.VARCHAR);
-		table.addColumn("transformations", "target_version", ColumnType.VARCHAR);
-		table.addColumn("transformations", "next_version", ColumnType.VARCHAR);
-		table.addColumn("transformations", "command", ColumnType.VARCHAR);
-		table.addColumn("transformations", "developer", ColumnType.VARCHAR);
-		table.addColumn("transformations", "comment", ColumnType.VARCHAR);
-		table.addColumn("transformations", "hashid", ColumnType.VARCHAR);
-		table.setPrimaryKey("component", "machine");
-		table.execute();
-		logger.info("LastTransformations table for Cassandra migration created.");
-	    }
-	} catch (ExecutionException e) {
-	    throw new TransformationException("Could not prepare namespace.", e);
+    private void prepareKeyspace() throws TransformationException, IOException {
+	DatabaseEngine databaseEngine = ductileDB.getBigTableStore();
+	Namespace namespace = databaseEngine.getNamespace(NAMESPACE_NAME);
+	if (namespace == null) {
+	    logger.info("Keyspace for DuctileDB migration is missing. Needs to be created...");
+	    namespace = databaseEngine.addNamespace(NAMESPACE_NAME);
+	    logger.info("Namespace for DuctileDB migration tracker created.");
 	}
-    }
-
-    private void createPreparedStatements() {
-	TableStore tableStore = ductileDB.getTableStore();
-	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	if (preparedInsertStatement == null) {
-	    preparedInsertStatement = dml.prepareInsert(NAMESPACE_NAME, CHANGELOG_TABLE);
-	    preparedInsertStatement.addPlaceholder(new Placeholder(1, "changelog", "time"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(2, "changelog", "component"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(3, "changelog", "machine"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(4, "changelog", "version"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(5, "changelog", "command"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(6, "changelog", "developer"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(7, "changelog", "comment"));
-	    preparedInsertStatement.addPlaceholder(new Placeholder(8, "changelog", "hashid"));
+	if (!namespace.hasTable(CHANGELOG_TABLE)) {
+	    logger.info("ChangeLog table for DuctileDB migration is missing. Needs to be created...");
+	    namespace.addTable(CHANGELOG_TABLE, "Contains the changelog of Genesis.");
+	    logger.info("ChangeLog table for DuctileDB migration created.");
 	}
-	if (preparedSelectStatement == null) {
-	    preparedSelectStatement = dml.prepareSelect(NAMESPACE_NAME, CHANGELOG_TABLE);
-	    preparedSelectStatement.addWherePlaceholder("changelog", "component", CompareOperator.EQUALS, 1);
-	    preparedSelectStatement.addWherePlaceholder("changelog", "machine", CompareOperator.EQUALS, 2);
-	    preparedSelectStatement.addWherePlaceholder("changelog", "version", CompareOperator.EQUALS, 3);
-	    preparedSelectStatement.addWherePlaceholder("changelog", "command", CompareOperator.EQUALS, 4);
+	if (!namespace.hasTable(MIGRATIONLOG_TABLE)) {
+	    logger.info("MigrationLog table for DuctileDB migration is missing. Needs to be created...");
+	    namespace.addTable(MIGRATIONLOG_TABLE,
+		    "Contains the migration log of Genesis which is a collection of the logs of the steps.");
+	    logger.info("MigrationLog table for DuctileDB migration created.");
 	}
-	if (preparedDropComponentStatement == null) {
-	    preparedDropComponentStatement = dml.prepareDelete(NAMESPACE_NAME, CHANGELOG_TABLE);
-	    preparedDropComponentStatement.addWherePlaceholder("changelog", "component", CompareOperator.EQUALS, 1);
-	    preparedDropComponentStatement.addWherePlaceholder("changelog", "machine", CompareOperator.EQUALS, 2);
-	}
-	if (preparedLoggingStatement == null) {
-	    preparedLoggingStatement = dml.prepareInsert(NAMESPACE_NAME, MIGRATIONLOG_TABLE);
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(1, "migrationlog", "time"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(2, "migrationlog", "severity"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(3, "migrationlog", "machine"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(4, "migrationlog", "thread"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(5, "migrationlog", "message"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(6, "migrationlog", "exception_type"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(7, "migrationlog", "exception_message"));
-	    preparedLoggingStatement.addPlaceholder(new Placeholder(8, "migrationlog", "stacktrace"));
-	}
-	if (preparedInsertLastTransformationStatement == null) {
-	    preparedInsertLastTransformationStatement = dml.prepareInsert(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE);
-	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(1, "transformations", "time"));
-	    preparedInsertLastTransformationStatement
-		    .addPlaceholder(new Placeholder(2, "transformations", "component"));
-	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(3, "transformations", "machine"));
-	    preparedInsertLastTransformationStatement
-		    .addPlaceholder(new Placeholder(4, "transformations", "start_version"));
-	    preparedInsertLastTransformationStatement
-		    .addPlaceholder(new Placeholder(5, "transformations", "target_version"));
-	    preparedInsertLastTransformationStatement
-		    .addPlaceholder(new Placeholder(6, "transformations", "next_version"));
-	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(7, "transformations", "command"));
-	    preparedInsertLastTransformationStatement
-		    .addPlaceholder(new Placeholder(8, "transformations", "developer"));
-	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(9, "transformations", "commend"));
-	    preparedInsertLastTransformationStatement.addPlaceholder(new Placeholder(10, "transformations", "hashid"));
-	}
-	if (preparedSelectLastTransformationStatement == null) {
-	    preparedSelectLastTransformationStatement = dml.prepareSelect(NAMESPACE_NAME, LAST_TRANSFORMATIONS_TABLE);
-	    preparedSelectLastTransformationStatement.addWherePlaceholder("transformations", "component",
-		    CompareOperator.EQUALS, 1);
-	    preparedSelectLastTransformationStatement.addWherePlaceholder("transformations", "machine",
-		    CompareOperator.EQUALS, 2);
-	}
-	if (preparedDropComponentLastTransformtaionStatement == null) {
-	    preparedDropComponentLastTransformtaionStatement = dml.prepareDelete(NAMESPACE_NAME,
-		    LAST_TRANSFORMATIONS_TABLE);
-	    preparedDropComponentLastTransformtaionStatement.addWherePlaceholder("transformations", "component",
-		    CompareOperator.EQUALS, 1);
-	    preparedDropComponentLastTransformtaionStatement.addWherePlaceholder("transformations", "machine",
-		    CompareOperator.EQUALS, 2);
+	if (!namespace.hasTable(LAST_TRANSFORMATIONS_TABLE)) {
+	    logger.info("LastTransformations table for DuctileDB migration is missing. Needs to be created...");
+	    namespace.addTable(LAST_TRANSFORMATIONS_TABLE, "Contains the last transformation of Genesis.");
+	    logger.info("LastTransformations table for DuctileDB migration created.");
 	}
     }
 
     @Override
     public void close() {
-	preparedInsertStatement = null;
-	preparedSelectStatement = null;
-	preparedDropComponentStatement = null;
-	preparedLoggingStatement = null;
-	preparedInsertLastTransformationStatement = null;
-	preparedSelectLastTransformationStatement = null;
-	preparedDropComponentLastTransformtaionStatement = null;
 	try {
 	    ductileDB.close();
 	} catch (IOException e) {
@@ -243,118 +101,140 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
 
     @Override
     public void trackMigration(InetAddress machine, TransformationMetadata metadata) throws TransformationException {
-	if ((preparedInsertStatement == null) || (preparedInsertLastTransformationStatement == null)) {
-	    createPreparedStatements();
-	}
-	try {
-	    // Tracking...
-	    TableStore tableStore = ductileDB.getTableStore();
-	    HashId hashId = HashUtilities.createHashId(metadata.getCommand());
-	    BoundStatement boundStatement = preparedInsertStatement.bind(Instant.now(), metadata.getComponentName(),
-		    machine.getHostAddress(), metadata.getTargetVersion().toString(), metadata.getCommand(),
-		    metadata.getDeveloper(), metadata.getComment(), hashId.toString());
-	    boundStatement.execute();
-	    // Last Transformations...
-	    String nextVersionString = metadata.getNextVersion() != null ? metadata.getNextVersion().toString() : "";
-	    boundStatement = preparedInsertLastTransformationStatement.bind(Instant.now(), metadata.getComponentName(),
-		    machine.getHostAddress(), metadata.getStartVersion().toString(),
-		    metadata.getTargetVersion().toString(), nextVersionString, metadata.getCommand(),
-		    metadata.getDeveloper(), metadata.getComment(), hashId.toString());
-	    boundStatement.execute();
-	} catch (IOException | ExecutionException e) {
-	    throw new TransformationException("Could not track migration step.", e);
-	}
+	// try {
+	// // Tracking...
+	// DatabaseEngine databaseEngine = ductileDB.getBigTableStore();
+	// Namespace namespace = databaseEngine.getNamespace(NAMESPACE_NAME);
+	//
+	// HashId hashId = HashUtilities.createHashId(metadata.getCommand());
+	// BigTable migrationTable = namespace.getTable(MIGRATIONLOG_TABLE);
+	// BoundStatement boundStatement =
+	// preparedInsertStatement.bind(Instant.now(),
+	// metadata.getComponentName(),
+	// machine.getHostAddress(), metadata.getTargetVersion().toString(),
+	// metadata.getCommand(),
+	// metadata.getDeveloper(), metadata.getComment(), hashId.toString());
+	// boundStatement.execute();
+	// // Last Transformations...
+	// String nextVersionString = metadata.getNextVersion() != null ?
+	// metadata.getNextVersion().toString() : "";
+	// boundStatement =
+	// preparedInsertLastTransformationStatement.bind(Instant.now(),
+	// metadata.getComponentName(),
+	// machine.getHostAddress(), metadata.getStartVersion().toString(),
+	// metadata.getTargetVersion().toString(), nextVersionString,
+	// metadata.getCommand(),
+	// metadata.getDeveloper(), metadata.getComment(), hashId.toString());
+	// boundStatement.execute();
+	// } catch (IOException | ExecutionException e) {
+	// throw new TransformationException("Could not track migration step.",
+	// e);
+	// }
     }
 
     @Override
     public boolean wasMigrated(String component, InetAddress machine, Version version, String command)
 	    throws TransformationException {
-	try {
-	    if (preparedSelectStatement == null) {
-		createPreparedStatements();
-	    }
-	    TableStore tableStore = ductileDB.getTableStore();
-	    BoundStatement boundStatement = preparedSelectStatement.bind(component, machine.getHostAddress(),
-		    version.toString(), command);
-	    TableRowIterable result;
-	    result = boundStatement.execute();
-	    return result.iterator().hasNext();
-	} catch (ExecutionException e) {
-	    throw new TransformationException("Could not check whether a migration took place.", e);
-	}
+	// try {
+	// DatabaseEngine databaseEngine = ductileDB.getBigTableStore();
+	// Namespace namespace = databaseEngine.getNamespace(NAMESPACE_NAME);
+	//
+	// BoundStatement boundStatement =
+	// preparedSelectStatement.bind(component, machine.getHostAddress(),
+	// version.toString(), command);
+	// TableRowIterable result;
+	// result = boundStatement.execute();
+	// return result.iterator().hasNext();
+	// } catch (ExecutionException e) {
+	// throw new TransformationException("Could not check whether a
+	// migration took place.", e);
+	// }
+	return false;
     }
 
     @Override
     public void dropComponentHistory(String component, InetAddress machine) throws TransformationException {
-	try {
-	    if ((preparedDropComponentStatement == null)
-		    || (preparedDropComponentLastTransformtaionStatement == null)) {
-		createPreparedStatements();
-	    }
-	    TableStore tableStore = ductileDB.getTableStore();
-	    BoundStatement boundStatement = preparedDropComponentStatement.bind(component, machine.getHostAddress());
-	    boundStatement.execute();
-	    boundStatement = preparedDropComponentLastTransformtaionStatement.bind(component, machine.getHostAddress());
-	    boundStatement.execute();
-	} catch (ExecutionException e) {
-	    throw new TransformationException("Could not drop component history.", e);
-	}
+	// try {
+	// DatabaseEngine databaseEngine = ductileDB.getBigTableStore();
+	// Namespace namespace = databaseEngine.getNamespace(NAMESPACE_NAME);
+	//
+	// BoundStatement boundStatement =
+	// preparedDropComponentStatement.bind(component,
+	// machine.getHostAddress());
+	// boundStatement.execute();
+	// boundStatement =
+	// preparedDropComponentLastTransformtaionStatement.bind(component,
+	// machine.getHostAddress());
+	// boundStatement.execute();
+	// } catch (ExecutionException e) {
+	// throw new TransformationException("Could not drop component
+	// history.", e);
+	// }
     }
 
     @Override
     public void log(Instant time, Severity severity, InetAddress machine, Thread thread, String message,
 	    Throwable cause) throws TransformationException {
-	try {
-	    if (preparedLoggingStatement == null) {
-		createPreparedStatements();
-	    }
-	    TableStore tableStore = ductileDB.getTableStore();
-	    if (cause == null) {
-		BoundStatement boundStatement = preparedLoggingStatement.bind(time, severity.name(),
-			machine.getHostAddress().toString(), thread.getName(), message, "", "", "");
-		boundStatement.execute();
-	    } else {
-		BoundStatement boundStatement = preparedLoggingStatement.bind(time, severity.name(),
-			machine.getHostAddress().toString(), thread.getName(), message, cause.getClass().getName(),
-			cause.getMessage(), cause.toString());
-		boundStatement.execute();
-	    }
-	} catch (ExecutionException e) {
-	    throw new TransformationException("Could not log migration.", e);
-	}
+	// try {
+	// DatabaseEngine databaseEngine = ductileDB.getBigTableStore();
+	// Namespace namespace = databaseEngine.getNamespace(NAMESPACE_NAME);
+	//
+	// if (cause == null) {
+	// BoundStatement boundStatement = preparedLoggingStatement.bind(time,
+	// severity.name(),
+	// machine.getHostAddress().toString(), thread.getName(), message, "",
+	// "", "");
+	// boundStatement.execute();
+	// } else {
+	// BoundStatement boundStatement = preparedLoggingStatement.bind(time,
+	// severity.name(),
+	// machine.getHostAddress().toString(), thread.getName(), message,
+	// cause.getClass().getName(),
+	// cause.getMessage(), cause.toString());
+	// boundStatement.execute();
+	// }
+	// } catch (ExecutionException e) {
+	// throw new TransformationException("Could not log migration.", e);
+	// }
     }
 
     @Override
     public TransformationMetadata getLastTransformationMetadata(String component, InetAddress machine)
 	    throws TransformationException {
-	if (preparedSelectLastTransformationStatement == null) {
-	    createPreparedStatements();
-	}
-	TableStore tableStore = ductileDB.getTableStore();
-	BoundStatement boundStatement = preparedSelectLastTransformationStatement.bind(component,
-		machine.getHostAddress());
-	try (TableRowIterable resultSet = boundStatement.execute()) {
-	    TableRow next = resultSet.iterator().next();
-	    if (next == null) {
-		return null;
-	    }
-	    Version startVersion = Version.valueOf(next.getString("start_version"));
-	    Version targetVersion = Version.valueOf(next.getString("target_version"));
-	    String nextVersionString = next.getString("next_version");
-	    Version nextVersion;
-	    if ((nextVersionString != null) && (!nextVersionString.isEmpty())) {
-		nextVersion = Version.valueOf(nextVersionString);
-	    } else {
-		nextVersion = null;
-	    }
-	    String developer = next.getString("developer");
-	    String command = next.getString("command");
-	    String comment = next.getString("comment");
-	    SequenceMetadata sequenceMetadata = new SequenceMetadata(component, startVersion,
-		    new ProvidedVersionRange(targetVersion, nextVersion));
-	    return new TransformationMetadata(sequenceMetadata, developer, command, comment);
-	} catch (IOException | ExecutionException e) {
-	    throw new TransformationException("Could not retrieve last transformation data.", e);
-	}
+	// DatabaseEngine databaseEngine = ductileDB.getBigTableStore();
+	// Namespace namespace = databaseEngine.getNamespace(NAMESPACE_NAME);
+	//
+	// BoundStatement boundStatement =
+	// preparedSelectLastTransformationStatement.bind(component,
+	// machine.getHostAddress());
+	// try (TableRowIterable resultSet = boundStatement.execute()) {
+	// TableRow next = resultSet.iterator().next();
+	// if (next == null) {
+	// return null;
+	// }
+	// Version startVersion =
+	// Version.valueOf(next.getString("start_version"));
+	// Version targetVersion =
+	// Version.valueOf(next.getString("target_version"));
+	// String nextVersionString = next.getString("next_version");
+	// Version nextVersion;
+	// if ((nextVersionString != null) && (!nextVersionString.isEmpty())) {
+	// nextVersion = Version.valueOf(nextVersionString);
+	// } else {
+	// nextVersion = null;
+	// }
+	// String developer = next.getString("developer");
+	// String command = next.getString("command");
+	// String comment = next.getString("comment");
+	// SequenceMetadata sequenceMetadata = new SequenceMetadata(component,
+	// startVersion,
+	// new ProvidedVersionRange(targetVersion, nextVersion));
+	// return new TransformationMetadata(sequenceMetadata, developer,
+	// command, comment);
+	// } catch (IOException | ExecutionException e) {
+	// throw new TransformationException("Could not retrieve last
+	// transformation data.", e);
+	// }
+	return null;
     }
 }

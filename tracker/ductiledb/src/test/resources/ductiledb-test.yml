@@ -7,4 +7,4 @@ databaseEngine:
 #    properties: {storage.os.directory: "c:/users/rludwig/test/genesis"}
 blobStore:
 graph:
-  namespace: "ductiledb"
+  namespace: "graph"

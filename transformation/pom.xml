@@ -16,6 +16,7 @@
 		<module>cassandra</module>
 		<module>titan</module>
 		<module>jdbc</module>
+		<module>postgresql</module>
 		<module>hadoop</module>
 		<module>hbase</module>
 		<module>phoenix</module>

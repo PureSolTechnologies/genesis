@@ -1,5 +1,7 @@
 package com.puresoltechnologies.genesis.controller;
 
+import java.util.Properties;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,9 +21,9 @@ public class TestTransformationTrackerTest {
     @Test
     public void testOpenWithOpen() {
 	try (TestTransformationTracker tracker = new TestTransformationTracker()) {
-	    tracker.open();
+	    tracker.open(new Properties());
 	    exception.expect(IllegalStateException.class);
-	    tracker.open();
+	    tracker.open(new Properties());
 	}
     }
 

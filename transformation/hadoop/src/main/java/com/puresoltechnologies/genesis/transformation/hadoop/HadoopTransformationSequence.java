@@ -2,6 +2,7 @@ package com.puresoltechnologies.genesis.transformation.hadoop;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class HadoopTransformationSequence extends AbstractTransformationSequence
     }
 
     @Override
-    public final void open() {
+    public final void open(Properties configuration) {
 	try {
 	    fileSystem = HadoopClientHelper.connect(configurationDirectory);
 	} catch (IOException e) {

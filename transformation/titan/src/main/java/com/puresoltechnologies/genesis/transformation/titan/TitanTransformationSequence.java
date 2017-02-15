@@ -1,5 +1,7 @@
 package com.puresoltechnologies.genesis.transformation.titan;
 
+import java.util.Properties;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 
@@ -20,7 +22,7 @@ public class TitanTransformationSequence extends AbstractTransformationSequence 
     }
 
     @Override
-    public final void open() {
+    public final void open(Properties configuration) {
 	titanGraph = connect();
     }
 

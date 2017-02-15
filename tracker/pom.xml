@@ -15,6 +15,7 @@
 		<module>spi</module>
 		<module>test</module>
 		<module>filesystem</module>
+		<module>postgresql</module>
 		<module>ductiledb</module>
 		<module>cassandra</module>
 		<module>hadoop</module>

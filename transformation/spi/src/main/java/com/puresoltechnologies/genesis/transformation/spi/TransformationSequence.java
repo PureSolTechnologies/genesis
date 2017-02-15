@@ -1,8 +1,10 @@
 package com.puresoltechnologies.genesis.transformation.spi;
 
 import java.util.List;
+import java.util.Properties;
 
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
+import com.puresoltechnologies.genesis.commons.TransformationException;
 
 /**
  * This interface is used to implement a single transformation sequence.
@@ -14,8 +16,10 @@ public interface TransformationSequence extends AutoCloseable {
     /**
      * This method is called before {@link #getTransformations()} is called.
      * This is the place to open database connections.
+     * 
+     * @throws TransformationException
      */
-    public void open();
+    public void open(Properties configuration) throws TransformationException;
 
     /**
      * This method is called after the

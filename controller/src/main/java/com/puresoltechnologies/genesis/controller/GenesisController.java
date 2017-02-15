@@ -1,5 +1,9 @@
 package com.puresoltechnologies.genesis.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
@@ -8,12 +12,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
@@ -42,101 +49,18 @@ public class GenesisController implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(GenesisController.class);
 
-    private static boolean migrate = false;
-    private static boolean drop = false;
+    @Parameter(names = { "--migrate", "-m" }, description = "Run the migration.")
+    private boolean migrate = false;
 
-    private static void showUsage() {
-	System.out.println("Usage: <DDL.jar> (--drop | --migrate)");
-    }
+    @Parameter(names = { "--drop", "-d" }, description = "Run a drop all.")
+    private boolean drop = false;
 
-    public static void main(String[] args) throws Exception {
-	if (args.length == 0) {
-	    showUsage();
-	    return;
-	}
-	for (String arg : args) {
-	    if ("--drop".equals(arg)) {
-		drop = true;
-	    } else if ("--migrate".equals(arg)) {
-		migrate = true;
-	    }
-	}
-	if (drop) {
-	    runDropAll();
-	}
-	if (migrate) {
-	    migrate();
-	}
-    }
-
-    /**
-     * This method runs the transformation to the last version-
-     * 
-     * @return <code>true</code> is returned in case of a successful migration.
-     *         <code>false</code> is returned otherwise.
-     */
-    public static boolean migrate() {
-	return migrate(null);
-    }
-
-    /**
-     * Runs the migration to a specified version.
-     * 
-     * @param targetVersion
-     *            is the version to which the migration is to run to.
-     * @return <code>true</code> is returned in case of a successful migration.
-     *         <code>false</code> is returned otherwise.
-     */
-    public static boolean migrate(Version targetVersion) {
-	printRunHeader("MIGRATE");
-	StopWatch stopWatch = new StopWatch();
-	stopWatch.start();
-	boolean success = false;
-	try (GenesisController controller = new GenesisController()) {
-	    controller.transform(targetVersion);
-	    success = true;
-	} catch (NoTrackerFoundException | TransformationException | InvalidSequenceException e) {
-	    e.printStackTrace(System.err);
-	}
-	stopWatch.stop();
-	printRunFooter(success, stopWatch);
-	return success;
-    }
-
-    public static boolean runDropAll() {
-	printRunHeader("DROP");
-	StopWatch stopWatch = new StopWatch();
-	stopWatch.start();
-	boolean success = false;
-	try (GenesisController controller = new GenesisController()) {
-	    controller.dropAll();
-	    success = true;
-	} catch (NoTrackerFoundException | TransformationException e) {
-	    e.printStackTrace(System.err);
-	}
-	stopWatch.stop();
-	printRunFooter(success, stopWatch);
-	return success;
-    }
-
-    private static final void printRunHeader(String command) {
-	System.out.println("==================================================");
-	System.out.println("Genesis " + BuildInformation.getVersion());
-	System.out.println("==================================================");
-	logger.info("==> Genesis " + BuildInformation.getVersion() + " started: " + command + " requested. <==");
-    }
-
-    private static final void printRunFooter(boolean success, StopWatch stopWatch) {
-	String stateString = success ? "SUCCESS" : "FAILED";
-	logger.info("==> Genesis " + BuildInformation.getVersion() + " finished with " + stateString + " <==");
-	System.out.println("==================================================");
-	System.out.println("Genesis: " + stateString);
-	System.out.println("Time:    " + stopWatch.getSeconds() + "s");
-	System.out.println("==================================================");
-    }
+    @Parameter(names = { "--config", "-c" }, description = "Path to configuration properties file.", required = true)
+    private String configurationFile;
 
     private final TransformationTracker tracker;
     private final InetAddress machine;
+    private final Properties configuration = new Properties();
 
     public GenesisController() throws NoTrackerFoundException {
 	super();
@@ -178,8 +102,90 @@ public class GenesisController implements AutoCloseable {
 	Transformators.unloadAll();
     }
 
-    public void transform() throws TransformationException, InvalidSequenceException {
-	transform(null);
+    public void run() throws IOException {
+	readConfiguration();
+	if (drop) {
+	    runDropAll();
+	}
+	if (migrate) {
+	    migrate();
+	}
+    }
+
+    private void readConfiguration() throws IOException, FileNotFoundException {
+	File file = new File(configurationFile);
+	if (!file.exists()) {
+	    throw new IOException("Configuration file '" + file + "' does not exist.");
+	}
+	try (FileInputStream reader = new FileInputStream(file)) {
+	    configuration.load(reader);
+	}
+    }
+
+    /**
+     * This method runs the transformation to the last version-
+     * 
+     * @return <code>true</code> is returned in case of a successful migration.
+     *         <code>false</code> is returned otherwise.
+     */
+    public boolean migrate() {
+	return migrate(null);
+    }
+
+    /**
+     * Runs the migration to a specified version.
+     * 
+     * @param targetVersion
+     *            is the version to which the migration is to run to.
+     * @return <code>true</code> is returned in case of a successful migration.
+     *         <code>false</code> is returned otherwise.
+     */
+    public boolean migrate(Version targetVersion) {
+	printRunHeader("MIGRATE");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
+	boolean success = false;
+	try {
+	    transform(targetVersion);
+	    success = true;
+	} catch (TransformationException | InvalidSequenceException e) {
+	    e.printStackTrace(System.err);
+	}
+	stopWatch.stop();
+	printRunFooter(success, stopWatch);
+	return success;
+    }
+
+    private boolean runDropAll() {
+	printRunHeader("DROP");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
+	boolean success = false;
+	try {
+	    dropAll();
+	    success = true;
+	} catch (TransformationException e) {
+	    e.printStackTrace(System.err);
+	}
+	stopWatch.stop();
+	printRunFooter(success, stopWatch);
+	return success;
+    }
+
+    private void printRunHeader(String command) {
+	System.out.println("==================================================");
+	System.out.println("Genesis " + BuildInformation.getVersion());
+	System.out.println("==================================================");
+	logger.info("==> Genesis " + BuildInformation.getVersion() + " started: " + command + " requested. <==");
+    }
+
+    private void printRunFooter(boolean success, StopWatch stopWatch) {
+	String stateString = success ? "SUCCESS" : "FAILED";
+	logger.info("==> Genesis " + BuildInformation.getVersion() + " finished with " + stateString + " <==");
+	System.out.println("==================================================");
+	System.out.println("Genesis: " + stateString);
+	System.out.println("Time:    " + stopWatch.getSeconds() + "s");
+	System.out.println("==================================================");
     }
 
     /**
@@ -192,8 +198,8 @@ public class GenesisController implements AutoCloseable {
      *             is thrown in case the sequences do not provide a valid
      *             migration model.
      */
-    public void transform(Version targetVersion) throws TransformationException, InvalidSequenceException {
-	tracker.open();
+    private void transform(Version targetVersion) throws TransformationException, InvalidSequenceException {
+	tracker.open(configuration);
 	try {
 	    List<ComponentTransformator> allTransformators = new ArrayList<>(Transformators.getAll());
 	    sortTransformatorsByDependencies(allTransformators);
@@ -241,11 +247,11 @@ public class GenesisController implements AutoCloseable {
 	    targetVersion = model.getMaximumVersion();
 	}
 	logInfo("Target version: " + targetVersion);
-	runTransformations(transformator.getComponentName(), model, targetVersion);
+	runModel(transformator.getComponentName(), model, targetVersion);
 	logInfo("Transformator for component '" + transformator.getComponentName() + "' stopped.");
     }
 
-    private void runTransformations(String componentName, MigrationModel model, Version targetVersion)
+    private void runModel(String componentName, MigrationModel model, Version targetVersion)
 	    throws TransformationException {
 	TransformationMetadata lastTransformation = tracker.getLastTransformationMetadata(componentName, machine);
 	setModelToCurrentState(model, lastTransformation);
@@ -314,7 +320,7 @@ public class GenesisController implements AutoCloseable {
     }
 
     private void runSequence(TransformationSequence sequence) throws TransformationException {
-	sequence.open();
+	sequence.open(configuration);
 	try {
 	    logInfo("Check and run sequence " + sequence);
 	    for (TransformationStep transformation : sequence.getTransformations()) {
@@ -335,7 +341,7 @@ public class GenesisController implements AutoCloseable {
     }
 
     public void dropAll() throws TransformationException {
-	tracker.open();
+	tracker.open(configuration);
 	try {
 	    for (ComponentTransformator transformator : Transformators.getAll()) {
 		logger.info(
@@ -384,5 +390,11 @@ public class GenesisController implements AutoCloseable {
 	} catch (TransformationException e) {
 	    logger.error("Could not log.", e);
 	}
+    }
+
+    public static void main(String[] args) throws Exception {
+	GenesisController controller = new GenesisController();
+	new JCommander(controller, args);
+	controller.run();
     }
 }

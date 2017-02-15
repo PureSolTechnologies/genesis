@@ -1,5 +1,7 @@
 package com.puresoltechnologies.genesis.transformation.cassandra;
 
+import java.util.Properties;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
@@ -29,7 +31,7 @@ public class CassandraTransformationSequence extends AbstractTransformationSeque
     }
 
     @Override
-    public final void open() {
+    public final void open(Properties configuration) {
 	cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
 	if (keyspace == null) {
 	    session = cluster.connect();

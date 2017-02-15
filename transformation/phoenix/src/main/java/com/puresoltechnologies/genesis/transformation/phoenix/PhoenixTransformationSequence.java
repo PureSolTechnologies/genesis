@@ -3,6 +3,7 @@ package com.puresoltechnologies.genesis.transformation.phoenix;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class PhoenixTransformationSequence extends AbstractTransformationSequenc
     }
 
     @Override
-    public final void open() {
+    public final void open(Properties configuration) {
 	try {
 	    connection = DriverManager.getConnection("jdbc:phoenix:" + host);
 	} catch (SQLException e) {

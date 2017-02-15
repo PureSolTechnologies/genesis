@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -63,7 +64,7 @@ public class HadoopTransformationTracker implements TransformationTracker {
     }
 
     @Override
-    public void open() throws TransformationException {
+    public void open(Properties configuration) throws TransformationException {
 	connect();
 	prepare();
     }

@@ -19,6 +19,7 @@
 		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
 		<slf4j.version>1.7.10</slf4j.version>
 		<ductiledb.version>0.2.0-SNAPSHOT</ductiledb.version>
+		<postgresql.version>9.1-901-1.jdbc4</postgresql.version>
 	</properties>
 
 	<parent>
@@ -206,6 +207,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.genesis</groupId>
+				<artifactId>commons.postgresql</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.genesis</groupId>
 				<artifactId>controller</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -264,6 +270,11 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.beust</groupId>
+				<artifactId>jcommander</artifactId>
+				<version>1.58</version>
+			</dependency>
+			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
@@ -318,6 +329,11 @@
 				<groupId>org.apache.phoenix</groupId>
 				<artifactId>phoenix-core</artifactId>
 				<version>${phoenix.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>9.1-901-1.jdbc4</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -377,6 +393,7 @@
 							<aliases>
 								<alias>The Apache Software License, Version 2.0</alias>
 								<alias>Apache 2</alias>
+								<alias>Apache 2.0</alias>
 								<alias>Apache License</alias>
 								<alias>Apache License 2.0</alias>
 								<alias>Apache License Version 2</alias>
@@ -705,6 +722,7 @@
 		<module>commons.cassandra</module>
 		<module>commons.hadoop</module>
 		<module>commons.ductiledb</module>
+		<module>commons.postgresql</module>
 		<module>tracker</module>
 		<module>transformation</module>
 		<module>controller</module>

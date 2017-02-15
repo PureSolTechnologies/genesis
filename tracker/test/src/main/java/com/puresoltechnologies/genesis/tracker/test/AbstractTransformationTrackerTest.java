@@ -24,7 +24,7 @@ public class AbstractTransformationTrackerTest {
     @Before
     public void testSPILoading() throws NoTrackerFoundException, TransformationException, InvalidSequenceException {
 	try (GenesisController controller = new GenesisController()) {
-	    controller.transform();
+	    controller.migrate();
 	}
     }
 

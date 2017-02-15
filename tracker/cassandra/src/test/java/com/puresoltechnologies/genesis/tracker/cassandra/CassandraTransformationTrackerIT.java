@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ public class CassandraTransformationTrackerIT extends AbstractTransformationTrac
     @Test
     public void testTracking() throws TransformationException, UnknownHostException {
 	CassandraTransformationTracker tracker = new CassandraTransformationTracker();
-	tracker.open();
+	tracker.open(new Properties());
 	try {
 	    Version startVersion = new Version(1, 0, 0);
 	    Version targetVersion = new Version(2, 0, 0);

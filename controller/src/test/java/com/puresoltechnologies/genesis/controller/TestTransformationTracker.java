@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.puresoltechnologies.genesis.commons.TransformationException;
@@ -23,7 +24,7 @@ public class TestTransformationTracker implements TransformationTracker {
     }
 
     @Override
-    public void open() {
+    public void open(Properties configuration) {
 	if (isOpen) {
 	    throw new IllegalStateException("Tracker shall not be open before opening.");
 	}

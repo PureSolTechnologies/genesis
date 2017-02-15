@@ -24,7 +24,7 @@ public class GenesisControllerTest extends AbstractControllerTest {
     public void testWithoutSequences()
 	    throws TransformationException, InvalidSequenceException, NoTrackerFoundException {
 	try (GenesisController controller = new GenesisController()) {
-	    controller.transform();
+	    controller.migrate();
 	}
     }
 
@@ -33,7 +33,7 @@ public class GenesisControllerTest extends AbstractControllerTest {
 	    throws TransformationException, InvalidSequenceException, NoTrackerFoundException {
 	try (GenesisController controller = new GenesisController()) {
 	    Transformators.addTransformator(new TestTransformator("component", true));
-	    controller.transform();
+	    controller.migrate();
 	}
     }
 
@@ -46,7 +46,7 @@ public class GenesisControllerTest extends AbstractControllerTest {
 		    new Version(1, 0, 0), null);
 	    transformator.addSequence(sequence);
 	    Transformators.addTransformator(transformator);
-	    controller.transform();
+	    controller.migrate();
 	}
     }
 
@@ -69,14 +69,14 @@ public class GenesisControllerTest extends AbstractControllerTest {
 	    assertEquals(0, tracker.getRunCount(transformator.getComponentName(), controller.getHost(),
 		    metadata1.getTargetVersion(), metadata1.getCommand()));
 
-	    controller.transform();
+	    controller.migrate();
 
 	    assertTrue(tracker.wasMigrated(transformator.getComponentName(), controller.getHost(),
 		    metadata1.getTargetVersion(), metadata1.getCommand()));
 	    assertEquals(1, tracker.getRunCount(transformator.getComponentName(), controller.getHost(),
 		    metadata1.getTargetVersion(), metadata1.getCommand()));
 
-	    controller.transform();
+	    controller.migrate();
 
 	    assertTrue(tracker.wasMigrated(transformator.getComponentName(), controller.getHost(),
 		    metadata1.getTargetVersion(), metadata1.getCommand()));
@@ -122,7 +122,7 @@ public class GenesisControllerTest extends AbstractControllerTest {
 	    assertEquals(0, tracker.getRunCount(transformator2.getComponentName(), controller.getHost(),
 		    metadata21.getTargetVersion(), metadata21.getCommand()));
 
-	    controller.transform();
+	    controller.migrate();
 
 	    assertTrue(tracker.wasMigrated(transformator1.getComponentName(), controller.getHost(),
 		    metadata11.getTargetVersion(), metadata11.getCommand()));
@@ -133,7 +133,7 @@ public class GenesisControllerTest extends AbstractControllerTest {
 	    assertEquals(1, tracker.getRunCount(transformator2.getComponentName(), controller.getHost(),
 		    metadata21.getTargetVersion(), metadata21.getCommand()));
 
-	    controller.transform();
+	    controller.migrate();
 
 	    assertTrue(tracker.wasMigrated(transformator1.getComponentName(), controller.getHost(),
 		    metadata11.getTargetVersion(), metadata11.getCommand()));

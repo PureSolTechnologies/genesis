@@ -1,9 +1,7 @@
 package com.puresoltechnologies.genesis.tracker.cassandra;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.URL;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Properties;
@@ -69,32 +67,25 @@ public class CassandraTransformationTracker implements TransformationTracker {
     private int replicationFactor = DEFAULT_REPLICATION_FACTOR;
     private String replicationStrategy = DEFAULT_REPLICATION_STRATEGY;
 
+    private final Properties configuration = new Properties();
+
     @Override
-    public void open() throws TransformationException {
+    public void open(Properties configuration) throws TransformationException {
+	this.configuration.putAll(configuration);
 	loadAlternateConfigIfPresent();
 	connect();
 	prepareKeyspace();
     }
 
     private void loadAlternateConfigIfPresent() {
-	URL configuration = getClass().getResource("/genesis.tracker.cassandra.properties");
-	if (configuration != null) {
-	    try (InputStream stream = configuration.openStream()) {
-		Properties properties = new Properties();
-		properties.load(stream);
-		host = properties.getProperty("host", DEFAULT_CASSANDRA_HOST_NAME);
-		keyspace = properties.getProperty("keyspace", DEFAULT_KEYSPACE_NAME);
-		String portString = properties.getProperty("port", Integer.toString(DEFAULT_CASSANDRA_PORT));
-		port = Integer.parseInt(portString);
-		String replicationFactorString = properties.getProperty("replication.factor",
-			Integer.toString(DEFAULT_REPLICATION_FACTOR));
-		replicationFactor = Integer.parseInt(replicationFactorString);
-		replicationStrategy = properties.getProperty("replication.strategy", DEFAULT_REPLICATION_STRATEGY);
-	    } catch (IOException e) {
-		System.err.println(
-			"Warning: A configuration file for Cassandra Tracker was found, but could not be opened.");
-	    }
-	}
+	host = configuration.getProperty("host", DEFAULT_CASSANDRA_HOST_NAME);
+	keyspace = configuration.getProperty("keyspace", DEFAULT_KEYSPACE_NAME);
+	String portString = configuration.getProperty("port", Integer.toString(DEFAULT_CASSANDRA_PORT));
+	port = Integer.parseInt(portString);
+	String replicationFactorString = configuration.getProperty("replication.factor",
+		Integer.toString(DEFAULT_REPLICATION_FACTOR));
+	replicationFactor = Integer.parseInt(replicationFactorString);
+	replicationStrategy = configuration.getProperty("replication.strategy", DEFAULT_REPLICATION_STRATEGY);
     }
 
     private void connect() {

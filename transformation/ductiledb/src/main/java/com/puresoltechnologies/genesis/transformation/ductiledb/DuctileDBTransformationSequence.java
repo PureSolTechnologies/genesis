@@ -1,6 +1,7 @@
 package com.puresoltechnologies.genesis.transformation.ductiledb;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
@@ -21,7 +22,7 @@ public class DuctileDBTransformationSequence extends AbstractTransformationSeque
     }
 
     @Override
-    public final void open() {
+    public final void open(Properties configuration) {
 	try {
 	    ductileDB = connect();
 	    ductileDBGraph = ductileDB.getGraph();

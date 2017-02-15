@@ -2,6 +2,7 @@ package com.puresoltechnologies.genesis.tracker.spi;
 
 import java.net.InetAddress;
 import java.time.Instant;
+import java.util.Properties;
 
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
@@ -22,7 +23,7 @@ public interface TransformationTracker extends AutoCloseable {
      * @throws TransformationException
      *             in case the data store could not be opened and prepared.
      */
-    public void open() throws TransformationException;
+    public void open(Properties configuration) throws TransformationException;
 
     @Override
     public void close();

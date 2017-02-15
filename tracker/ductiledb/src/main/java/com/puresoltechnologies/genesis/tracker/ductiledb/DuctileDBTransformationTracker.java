@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Instant;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class DuctileDBTransformationTracker implements TransformationTracker {
     private DuctileDB ductileDB;
 
     @Override
-    public void open() throws TransformationException {
+    public void open(Properties configuration) throws TransformationException {
 	loadConfiguration();
 	connect();
 	try {

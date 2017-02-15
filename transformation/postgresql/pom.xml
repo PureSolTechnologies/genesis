@@ -22,6 +22,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.genesis</groupId>
+			<artifactId>transformation.jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.genesis</groupId>
 			<artifactId>commons.postgresql</artifactId>
 		</dependency>
 		<dependency>

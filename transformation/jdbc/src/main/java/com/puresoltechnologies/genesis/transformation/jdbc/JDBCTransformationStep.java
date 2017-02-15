@@ -7,11 +7,11 @@ import java.sql.Statement;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.TransformationMetadata;
 
-public class JDBCSQLTransformationStep extends AbstractJDBCTransformationStep {
+public class JDBCTransformationStep extends AbstractJDBCTransformationStep {
 
 	private final TransformationMetadata metadata;
 
-	public JDBCSQLTransformationStep(
+	public JDBCTransformationStep(
 			AbstractJDBCTransformationSequence sequence, String developer,
 			String sqlCommand, String comment) {
 		super(sequence);

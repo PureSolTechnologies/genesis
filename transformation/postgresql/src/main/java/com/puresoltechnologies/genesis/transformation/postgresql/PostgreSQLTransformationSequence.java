@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.TransformationException;
 import com.puresoltechnologies.genesis.commons.postgresql.PostgreSQLUtils;
-import com.puresoltechnologies.genesis.transformation.spi.AbstractTransformationSequence;
+import com.puresoltechnologies.genesis.transformation.jdbc.AbstractJDBCTransformationSequence;
 
-public class PostgreSQLTransformationSequence extends AbstractTransformationSequence {
+public class PostgreSQLTransformationSequence extends AbstractJDBCTransformationSequence {
 
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLTransformationSequence.class);
 
@@ -20,6 +20,11 @@ public class PostgreSQLTransformationSequence extends AbstractTransformationSequ
 
     public PostgreSQLTransformationSequence(SequenceMetadata metadata) {
 	super(metadata);
+    }
+
+    @Override
+    public Connection getConnection() {
+	return connection;
     }
 
     @Override

@@ -5,23 +5,18 @@ import java.sql.Connection;
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.transformation.spi.AbstractTransformationSequence;
 
-public abstract class AbstractJDBCTransformationSequence extends
-		AbstractTransformationSequence {
+public abstract class AbstractJDBCTransformationSequence extends AbstractTransformationSequence {
 
-	private final Connection connection = null;
+    public AbstractJDBCTransformationSequence(SequenceMetadata metadata) {
+	super(metadata);
+    }
 
-	public AbstractJDBCTransformationSequence(SequenceMetadata metadata) {
-		super(metadata);
-	}
+    public abstract Connection getConnection();
 
-	public final Connection getConnection() {
-		return connection;
-	}
-
-	@Override
-	public String toString() {
-		SequenceMetadata metadata = getMetadata();
-		return metadata.getComponentName() + " " + metadata.getStartVersion()
-				+ " -> " + metadata.getProvidedVersionRange().getMinimum();
-	}
+    @Override
+    public String toString() {
+	SequenceMetadata metadata = getMetadata();
+	return metadata.getComponentName() + " " + metadata.getStartVersion() + " -> "
+		+ metadata.getProvidedVersionRange().getMinimum();
+    }
 }

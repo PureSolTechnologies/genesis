@@ -15,7 +15,10 @@ public class PostgreSQLUtils {
 	if (ssl) {
 	    props.setProperty("ssl", "true");
 	}
-	return DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + database, props);
+	Connection connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + database,
+		props);
+	connection.setAutoCommit(false);
+	return connection;
     }
 
     public static Connection connect(Properties configuration) throws NumberFormatException, SQLException {

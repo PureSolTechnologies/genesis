@@ -267,7 +267,7 @@ public class PostgreSQLTransformationTracker implements TransformationTracker {
 	    }
 	    synchronized (preparedLoggingStatement) {
 		preparedLoggingStatement.setString(1, component);
-		preparedLoggingStatement.setString(1, machine.getHostAddress());
+		preparedLoggingStatement.setString(2, machine.getHostAddress());
 		preparedLoggingStatement.execute();
 	    }
 	    synchronized (preparedDropComponentLastTransformtaionStatement) {

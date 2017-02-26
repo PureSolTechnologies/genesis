@@ -346,7 +346,7 @@ public class GenesisController implements AutoCloseable {
 	    for (ComponentTransformator transformator : Transformators.getAll()) {
 		logger.info(
 			"Dropping component '" + transformator.getComponentName() + "' and its history from Genesis.");
-		transformator.dropAll();
+		transformator.dropAll(configuration);
 		tracker.dropComponentHistory(transformator.getComponentName(), machine);
 		logger.info("done.");
 	    }

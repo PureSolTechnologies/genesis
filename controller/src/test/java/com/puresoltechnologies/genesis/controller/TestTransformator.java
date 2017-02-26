@@ -2,6 +2,7 @@ package com.puresoltechnologies.genesis.controller;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import com.puresoltechnologies.genesis.transformation.spi.ComponentTransformator;
@@ -49,7 +50,7 @@ public class TestTransformator implements ComponentTransformator {
     }
 
     @Override
-    public void dropAll() {
+    public void dropAll(Properties configuration) {
 	// intentionally left empty
     }
 }

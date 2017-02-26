@@ -1,5 +1,6 @@
 package com.puresoltechnologies.genesis.transformation.spi;
 
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -54,6 +55,6 @@ public interface ComponentTransformator {
      * made. We do not support rollbacks aka. down migrations, but it may be
      * needed to remove a component.
      */
-    public void dropAll();
+    public void dropAll(Properties configuration);
 
 }

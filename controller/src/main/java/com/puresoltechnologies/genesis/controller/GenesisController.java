@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -343,7 +344,10 @@ public class GenesisController implements AutoCloseable {
     public void dropAll() throws TransformationException {
 	tracker.open(configuration);
 	try {
-	    for (ComponentTransformator transformator : Transformators.getAll()) {
+	    List<ComponentTransformator> allTransformators = new ArrayList<>(Transformators.getAll());
+	    sortTransformatorsByDependencies(allTransformators);
+	    Collections.reverse(allTransformators);
+	    for (ComponentTransformator transformator : allTransformators) {
 		logger.info(
 			"Dropping component '" + transformator.getComponentName() + "' and its history from Genesis.");
 		transformator.dropAll(configuration);

@@ -65,6 +65,13 @@ public class PostgreSQLTransformationTracker implements TransformationTracker {
 
     private void connect() throws TransformationException {
 	try {
+	    preparedInsertStatement = null;
+	    preparedSelectStatement = null;
+	    preparedDropComponentStatement = null;
+	    preparedLoggingStatement = null;
+	    preparedInsertLastTransformationStatement = null;
+	    preparedSelectLastTransformationStatement = null;
+	    preparedDropComponentLastTransformtaionStatement = null;
 	    connection = PostgreSQLUtils.connect(configuration);
 	} catch (SQLException e) {
 	    throw new TransformationException("Could not open connection to PostgreSQL.", e);

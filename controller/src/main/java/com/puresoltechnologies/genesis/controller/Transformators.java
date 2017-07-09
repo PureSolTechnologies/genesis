@@ -17,8 +17,7 @@ class Transformators {
     private static final Set<ComponentTransformator> transformators = new HashSet<>();
 
     public static void loadAll() {
-	ServiceLoader<ComponentTransformator> loader = ServiceLoader
-		.load(ComponentTransformator.class);
+	ServiceLoader<ComponentTransformator> loader = ServiceLoader.load(ComponentTransformator.class);
 	synchronized (transformators) {
 	    for (ComponentTransformator loadedSequence : loader) {
 		if (!transformators.contains(loadedSequence)) {

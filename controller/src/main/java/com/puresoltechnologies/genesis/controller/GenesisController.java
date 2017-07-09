@@ -233,7 +233,20 @@ public class GenesisController implements AutoCloseable {
 		}
 	    }
 	    if (lastLength == sortedTransformators.size()) {
-		throw new IllegalStateException("Dependencies for some transformators cannot be satisfied.");
+		StringBuilder builder = new StringBuilder();
+		builder.append("Dependencies for some transformators cannot be satisfied:\n");
+		builder.append("1) Resolved so far:\n");
+		for (int i = 0; i < sortedTransformators.size(); ++i) {
+		    ComponentTransformator transformator = sortedTransformators.get(i);
+		    builder.append("  " + (i + 1) + ") " + transformator.getComponentName() + " depend on: "
+			    + transformator.getDependencies() + "\n");
+		}
+		builder.append("2) Dependencies missing for:\n");
+		for (ComponentTransformator transformator : allTransformators) {
+		    builder.append("  - " + transformator.getComponentName() + " depend on: "
+			    + transformator.getDependencies() + "\n");
+		}
+		throw new IllegalStateException(builder.toString());
 	    }
 	}
 	allTransformators.clear();

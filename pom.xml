@@ -91,6 +91,12 @@
 
 	<profiles>
 		<profile>
+			<id>ductiledb</id>
+			<modules>
+				<module>commons.ductiledb</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>it</id>
 			<build>
 				<pluginManagement>
@@ -726,7 +732,6 @@
 		<module>commons</module>
 		<module>commons.cassandra</module>
 		<module>commons.hadoop</module>
-		<module>commons.ductiledb</module>
 		<module>commons.postgresql</module>
 		<module>tracker</module>
 		<module>transformation</module>

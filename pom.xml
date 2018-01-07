@@ -14,8 +14,8 @@
 		<graphs.version>0.7.0-SNAPSHOT</graphs.version>
 		<cassandra.driver.version>2.1.7.1</cassandra.driver.version>
 		<titan.version>0.5.4</titan.version>
-		<hadoop.version>2.7.1</hadoop.version>
-		<hbase.version>1.1.2</hbase.version>
+		<hadoop.version>3.0.0</hadoop.version>
+		<hbase.version>1.4.0</hbase.version>
 		<phoenix.version>4.5.1-HBase-1.1</phoenix.version>
 		<slf4j.version>1.7.10</slf4j.version>
 		<ductiledb.version>0.2.0-SNAPSHOT</ductiledb.version>
@@ -410,6 +410,7 @@
 								<alias>Apache License Version 2</alias>
 								<alias>Apache License Version 2.0</alias>
 								<alias>Apache Software License - Version 2.0</alias>
+								<alias>The Apache License, Version 2.0</alias>
 							</aliases>
 							<approvedDependencies>
 								<approvedDependency>avalon-framework:avalon-framework:.*</approvedDependency>
@@ -418,6 +419,7 @@
 								<approvedDependency>commons-logging:commons-logging:.*</approvedDependency>
 								<approvedDependency>log4j:log4j:.*</approvedDependency>
 								<approvedDependency>logkit:logkit:.*</approvedDependency>
+								<approvedDependency>net.minidev:json-smart:.*</approvedDependency>
 								<approvedDependency>org.apache.*:.*:.*</approvedDependency>
 								<approvedDependency>org\.codehaus\.jettison:jettison:.*</approvedDependency>
 								<approvedDependency>oro:oro:2\.0\.8</approvedDependency>
@@ -443,7 +445,8 @@
 								<alias>BSD 3-Clause</alias>
 								<alias>New BSD License</alias>
 								<alias>New BSD license</alias>
-								<aliase>Modified BSD License</aliase>
+								<alias>Modified BSD License</alias>
+								<alias>Revised BSD</alias>
 							</aliases>
 							<approvedDependencies>
 								<approvedDependency>asm:asm.*:.*</approvedDependency>
@@ -454,11 +457,20 @@
 							</approvedDependencies>
 						</knownLicense>
 						<knownLicense>
+							<name>Bouncy Castle License</name>
+							<url>http://www.bouncycastle.org/licence.html</url>
+							<aliases>
+								<alias>Bouncy Castle Licence</alias>
+							</aliases>
+						</knownLicense>
+						<knownLicense>
 							<name><![CDATA[Common Development and Distribution License (CDDL-1.0)]]></name>
 							<url>http://opensource.org/licenses/CDDL-1.0</url>
 							<aliases>
 								<alias>CDDL 1.0</alias>
 								<alias><![CDATA[COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0]]></alias>
+								<alias>CDDL License</alias>
+								<alias>CDDL + GPLv2 with classpath exception</alias>
 							</aliases>
 						</knownLicense>
 						<knownLicense>
@@ -516,6 +528,10 @@
 							</aliases>
 						</knownLicense>
 						<knownLicense>
+							<name>The Go license</name>
+							<url>https://golang.org/LICENSE</url>
+						</knownLicense>
+						<knownLicense>
 							<name>ISC License (ISC)</name>
 							<url>http://www.opensource.org/licenses/isc-license.txt</url>
 							<aliases>
@@ -539,6 +555,13 @@
 							<aliases>
 								<alias>MPL 1.1</alias>
 							</aliases>
+						</knownLicense>
+						<knownLicense>
+							<name>Creative Commons Public Domain</name>
+							<url>https://wiki.creativecommons.org/wiki/Public_domain</url>
+							<approvedDependencies>
+								<approvedDependency>net.jcip:jcip-annotations:.*</approvedDependency>
+							</approvedDependencies>
 						</knownLicense>
 						<knownLicense>
 							<name>Public Domain</name>

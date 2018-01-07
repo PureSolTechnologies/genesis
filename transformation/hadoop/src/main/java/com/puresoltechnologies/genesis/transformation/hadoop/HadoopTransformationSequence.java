@@ -1,6 +1,5 @@
 package com.puresoltechnologies.genesis.transformation.hadoop;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -17,11 +16,9 @@ public class HadoopTransformationSequence extends AbstractTransformationSequence
     private static final Logger logger = LoggerFactory.getLogger(HadoopTransformationSequence.class);
 
     private FileSystem fileSystem = null;
-    private final File configurationDirectory;
 
-    public HadoopTransformationSequence(File configurationDirectory, SequenceMetadata metadata) {
+    public HadoopTransformationSequence(SequenceMetadata metadata) {
 	super(metadata);
-	this.configurationDirectory = configurationDirectory;
     }
 
     public FileSystem getFileSystem() {
@@ -31,7 +28,7 @@ public class HadoopTransformationSequence extends AbstractTransformationSequence
     @Override
     public final void open(Properties configuration) {
 	try {
-	    fileSystem = HadoopClientHelper.connect(configurationDirectory);
+	    fileSystem = HadoopClientHelper.connect(configuration);
 	} catch (IOException e) {
 	    throw new RuntimeException("Could not connect to Hadoop.", e);
 	}

@@ -22,9 +22,13 @@ public class PostgreSQLUtils {
     }
 
     public static Connection connect(Properties configuration) throws NumberFormatException, SQLException {
-	return PostgreSQLUtils.connect(configuration.getProperty("host"),
-		Integer.parseInt(configuration.getProperty("port")), configuration.getProperty("database"),
-		configuration.getProperty("user"), configuration.getProperty("password"),
-		Boolean.parseBoolean(configuration.getProperty("ssl")));
+	return PostgreSQLUtils.connect( //
+		configuration.getProperty("transformator.postgresql.host"), //
+		Integer.parseInt(configuration.getProperty("transformator.postgresql.port")), //
+		configuration.getProperty("transformator.postgresql.database"), //
+		configuration.getProperty("transformator.postgresql.user"), //
+		configuration.getProperty("transformator.postgresql.password"), //
+		Boolean.parseBoolean(configuration.getProperty("transformator.postgresql.ssl")) //
+	);
     }
 }

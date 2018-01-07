@@ -2,6 +2,7 @@ package com.puresoltechnologies.genesis.commons.hadoop;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -22,8 +23,8 @@ public class HadoopClientHelper {
      * configuration for the client is looked up in /opt/hadoop. The Hadoop etc
      * directory is expected there.
      * 
-     * @return A {@link Configuration} object is returned for the client to
-     *         connect with.
+     * @return A {@link Configuration} object is returned for the client to connect
+     *         with.
      */
     public static Configuration createConfiguration() {
 	return createConfiguration(DEFAULT_PATH_STRING);
@@ -39,10 +40,10 @@ public class HadoopClientHelper {
      * Hadoop etc directory is expected there.
      * 
      * @param configurationDirectory
-     *            is the directory where Hadoop's etc configuration directory
-     *            can be found.
-     * @return A {@link Configuration} object is returned for the client to
-     *         connect with.
+     *            is the directory where Hadoop's etc configuration directory can be
+     *            found.
+     * @return A {@link Configuration} object is returned for the client to connect
+     *         with.
      */
     public static Configuration createConfiguration(File configurationDirectory) {
 	Configuration hadoopConfiguration = new Configuration();
@@ -57,11 +58,10 @@ public class HadoopClientHelper {
     }
 
     /**
-     * This method connects to Hadoop. The configuration for the client is
-     * looked up in /opt/hadoop. The Hadoop etc directory is expected there.
+     * This method connects to Hadoop. The configuration for the client is looked up
+     * in /opt/hadoop. The Hadoop etc directory is expected there.
      * 
-     * @return A {@link FileSystem} object is returned to be used from the
-     *         client.
+     * @return A {@link FileSystem} object is returned to be used from the client.
      * @throws IOException
      *             is thrown in cases of unexpected events.
      */
@@ -71,20 +71,20 @@ public class HadoopClientHelper {
     }
 
     /**
-     * This method connects to Hadoop. The configuration for the client is
-     * looked up in the provided directory. The Hadoop etc directory is expected
-     * there.
+     * This method connects to Hadoop. The configuration for the client is looked up
+     * in the provided directory. The Hadoop etc directory is expected there.
      * 
      * @param configurationDirectory
-     *            is the directory where Hadoop's etc configuration directory
-     *            can be found.
-     * @return A {@link FileSystem} object is returned to be used from the
-     *         client.
+     *            is the directory where Hadoop's etc configuration directory can be
+     *            found.
+     * @return A {@link FileSystem} object is returned to be used from the client.
      * @throws IOException
      *             is thrown in cases of unexpected events.
      */
-    public static FileSystem connect(File configurationDirectory) throws IOException {
-	Configuration configuration = HadoopClientHelper.createConfiguration(configurationDirectory);
-	return FileSystem.newInstance(configuration);
+    public static FileSystem connect(Properties configuration) throws IOException {
+	Configuration conf = new Configuration();
+	conf.set("fs.defaultFS", "hdfs://" + configuration.getProperty("transformator.dfs.host") + ":"
+		+ configuration.getProperty("transformator.dfs.port"));
+	return FileSystem.get(conf);
     }
 }

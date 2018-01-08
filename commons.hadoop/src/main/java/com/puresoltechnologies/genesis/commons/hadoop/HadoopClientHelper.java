@@ -67,7 +67,7 @@ public class HadoopClientHelper {
      */
     public static FileSystem connect() throws IOException {
 	Configuration configuration = HadoopClientHelper.createConfiguration();
-	return FileSystem.newInstance(configuration);
+	return FileSystem.get(configuration);
     }
 
     /**
@@ -82,9 +82,11 @@ public class HadoopClientHelper {
      *             is thrown in cases of unexpected events.
      */
     public static FileSystem connect(Properties configuration) throws IOException {
+	String host = configuration.getProperty("transformator.dfs.host");
+	String port = configuration.getProperty("transformator.dfs.port");
+	String hdfsUrl = "hdfs://" + host + ":" + port;
 	Configuration conf = new Configuration();
-	conf.set("fs.defaultFS", "hdfs://" + configuration.getProperty("transformator.dfs.host") + ":"
-		+ configuration.getProperty("transformator.dfs.port"));
+	conf.set("fs.defaultFS", hdfsUrl);
 	return FileSystem.get(conf);
     }
 }

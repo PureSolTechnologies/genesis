@@ -18,8 +18,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
@@ -38,8 +36,6 @@ import com.puresoltechnologies.versioning.Version;
  * @author Rick-Rainer Ludwig
  */
 public class HadoopTransformationTracker implements TransformationTracker {
-
-    private static final Logger logger = LoggerFactory.getLogger(HadoopTransformationTracker.class);
 
     private static final Path genesisDirectoryPath = new Path("/apps/Genesis");
     private static final Path migrationLogFilePath = new Path(genesisDirectoryPath, "migration.log");
@@ -128,7 +124,8 @@ public class HadoopTransformationTracker implements TransformationTracker {
 	try {
 	    fileSystem.close();
 	} catch (IOException e) {
-	    logger.warn("Could not close Hadoop file system.", e);
+	    System.err.println("Could not close Hadoop file system.");
+	    e.printStackTrace(System.err);
 	} finally {
 	    fileSystem = null;
 	}
@@ -283,7 +280,8 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		    Version targetVersion = Version.valueOf(targetVersionString);
 		    String nextVersionString = tokens[5];
 		    Version nextVersion = (nextVersionString != null) && (!nextVersionString.isEmpty())
-			    ? Version.valueOf(nextVersionString) : null;
+			    ? Version.valueOf(nextVersionString)
+			    : null;
 		    SequenceMetadata sequenceMetadata = new SequenceMetadata(tokens[1], Version.valueOf(tokens[3]),
 			    new ProvidedVersionRange(targetVersion, nextVersion));
 		    TransformationMetadata transformationMetadata = new TransformationMetadata(sequenceMetadata,
@@ -296,8 +294,9 @@ public class HadoopTransformationTracker implements TransformationTracker {
 	    }
 	    return false;
 	} catch (TransformationException | IOException e) {
-	    logger.error("Could not read the transformation log for component '" + component + "' and machine '"
-		    + machine.getHostAddress() + "'.", e);
+	    System.err.println("Could not read the transformation log for component '" + component + "' and machine '"
+		    + machine.getHostAddress() + "'.");
+	    e.printStackTrace(System.err);
 	    return false;
 	}
     }
@@ -306,10 +305,11 @@ public class HadoopTransformationTracker implements TransformationTracker {
     public void dropComponentHistory(String component, InetAddress machine) {
 	try {
 	    if (!fileSystem.delete(createComponentDirectoryPath(component), true)) {
-		logger.error("Could not drop component history for component '" + component + "'.");
+		System.err.println("Could not drop component history for component '" + component + "'.");
 	    }
 	} catch (IOException e) {
-	    logger.error("Could not drop component history for component '" + component + "'.", e);
+	    System.err.println("Could not drop component history for component '" + component + "'.");
+	    e.printStackTrace(System.err);
 	}
     }
 
@@ -344,7 +344,8 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		bufferedWriter.write(builder.toString());
 	    }
 	} catch (IOException e) {
-	    logger.warn("Could not log '" + builder.toString() + "' to '" + migrationLogFilePath + "'.", e);
+	    System.err.println("Could not log '" + builder.toString() + "' to '" + migrationLogFilePath + "'.");
+	    e.printStackTrace(System.err);
 	}
 
     }
@@ -370,7 +371,8 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		Version targetVersion = Version.valueOf(targetVersionString);
 		String nextVersionString = tokens[5];
 		Version nextVersion = (nextVersionString != null) && (!nextVersionString.isEmpty())
-			? Version.valueOf(nextVersionString) : null;
+			? Version.valueOf(nextVersionString)
+			: null;
 		SequenceMetadata sequenceMetadata = new SequenceMetadata(tokens[1], Version.valueOf(tokens[3]),
 			new ProvidedVersionRange(targetVersion, nextVersion));
 		TransformationMetadata transformationMetadata = new TransformationMetadata(sequenceMetadata, tokens[7],
@@ -378,8 +380,9 @@ public class HadoopTransformationTracker implements TransformationTracker {
 		return transformationMetadata;
 	    }
 	} catch (TransformationException | IOException e) {
-	    logger.error("Could not read last transformation for component '" + component + "' and machine '"
-		    + machine.getHostAddress() + "'.", e);
+	    System.err.println("Could not read last transformation for component '" + component + "' and machine '"
+		    + machine.getHostAddress() + "'.");
+	    e.printStackTrace(System.err);
 	    return null;
 	}
     }

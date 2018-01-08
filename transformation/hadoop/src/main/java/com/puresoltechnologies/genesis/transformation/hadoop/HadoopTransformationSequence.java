@@ -4,16 +4,12 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.hadoop.fs.FileSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.genesis.commons.SequenceMetadata;
 import com.puresoltechnologies.genesis.commons.hadoop.HadoopClientHelper;
 import com.puresoltechnologies.genesis.transformation.spi.AbstractTransformationSequence;
 
 public class HadoopTransformationSequence extends AbstractTransformationSequence {
-
-    private static final Logger logger = LoggerFactory.getLogger(HadoopTransformationSequence.class);
 
     private FileSystem fileSystem = null;
 
@@ -39,7 +35,8 @@ public class HadoopTransformationSequence extends AbstractTransformationSequence
 	try {
 	    fileSystem.close();
 	} catch (IOException e) {
-	    logger.warn("Could not cleanly close connection to Haddop.", e);
+	    System.err.println("Could not cleanly close connection to Haddop.");
+	    e.printStackTrace(System.err);
 	} finally {
 	    fileSystem = null;
 	}

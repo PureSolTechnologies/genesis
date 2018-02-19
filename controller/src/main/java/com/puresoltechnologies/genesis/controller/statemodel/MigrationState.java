@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
-import com.puresoltechnologies.statemodel.State;
+import com.puresoltechnologies.graphs.statemodel.State;
 import com.puresoltechnologies.versioning.Version;
 
 public class MigrationState implements State<MigrationState, Migration> {
@@ -39,18 +39,15 @@ public class MigrationState implements State<MigrationState, Migration> {
 
     private void addEdge(Migration migration) {
 	if (!edges.add(migration)) {
-	    throw new IllegalStateException("Edge '" + migration.toString()
-		    + "' was already included. "
+	    throw new IllegalStateException("Edge '" + migration.toString() + "' was already included. "
 		    + "Duplicates are forbidden to avoid ambiguities.");
 	}
     }
 
-    public void addMigration(MigrationState targetState,
-	    TransformationSequence sequence) {
+    public void addMigration(MigrationState targetState, TransformationSequence sequence) {
 	Migration migration = new Migration(this, targetState, sequence);
 	if (!migrations.add(migration)) {
-	    throw new IllegalStateException("Migration '"
-		    + migration.toString() + "' was already included. "
+	    throw new IllegalStateException("Migration '" + migration.toString() + "' was already included. "
 		    + "Duplicates are forbidden to avoid ambiguities.");
 	}
 	targetState.addEdge(migration);

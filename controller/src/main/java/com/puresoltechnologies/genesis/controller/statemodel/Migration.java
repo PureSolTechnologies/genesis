@@ -1,8 +1,8 @@
 package com.puresoltechnologies.genesis.controller.statemodel;
 
 import com.puresoltechnologies.genesis.transformation.spi.TransformationSequence;
-import com.puresoltechnologies.graph.Pair;
-import com.puresoltechnologies.statemodel.Transition;
+import com.puresoltechnologies.graphs.graph.Pair;
+import com.puresoltechnologies.graphs.statemodel.Transition;
 
 public class Migration implements Transition<MigrationState, Migration> {
 
@@ -10,8 +10,7 @@ public class Migration implements Transition<MigrationState, Migration> {
     private final MigrationState targetState;
     private final TransformationSequence sequence;
 
-    public Migration(MigrationState startState, MigrationState targetState,
-	    TransformationSequence sequence) {
+    public Migration(MigrationState startState, MigrationState targetState, TransformationSequence sequence) {
 	super();
 	this.startState = startState;
 	this.targetState = targetState;
@@ -39,7 +38,6 @@ public class Migration implements Transition<MigrationState, Migration> {
 
     @Override
     public String toString() {
-	return "Migration " + startState.getVersion() + " -> "
-		+ targetState.getVersion();
+	return "Migration " + startState.getVersion() + " -> " + targetState.getVersion();
     }
 }
